@@ -1,0 +1,154 @@
+<div class="categories-wrapper">
+
+  <!-- Ambient pulse-line watermark -->
+  <svg class="wrapper-pulse-bg" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,60 L220,60 L250,15 L280,105 L310,60 L340,80 L360,60 L1200,60"
+          fill="none" stroke="currentColor" stroke-width="2"/>
+  </svg>
+
+  <div class="page-shell">
+
+    <!-- Header -->
+    <div class="header-row">
+      <h1 class="categories-title">
+        <i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Appointments
+        <span style="font-size: 0.8rem; color: var(--ink-soft); font-weight: 400;">
+          ({{ filteredAppointments.length }})
+        </span>
+      </h1>
+
+      <div style="display:flex; gap:0.5rem; align-items:center;">
+        <div class="view-toggle">
+          <button
+            class="view-toggle-btn"
+            [class.active]="viewMode === 'list'"
+            (click)="setViewMode('list')">
+            <i class="fa-solid fa-list"></i> List
+          </button>
+          <button
+            class="view-toggle-btn"
+            [class.active]="viewMode === 'calendar'"
+            (click)="setViewMode('calendar')">
+            <i class="fa-solid fa-calendar-days"></i> Calendar
+          </button>
+        </div>
+
+        <button class="btn-submit btn-submit--sm" (click)="loadAppointments()" title="Refresh">
+          <i class="fa-solid fa-rotate" aria-hidden="true"></i> Refresh
+        </button>
+      </div>
+    </div>
+
+    @if (viewMode === 'list') {
+
+      <!-- Search & Filter - Using Bootstrap Grid -->
+      <div class="row g-2 mb-3 align-items-center">
+        <!-- Search Bar -->
+        <div class="col-12 col-md-7 col-lg-8">
+          <div class="list-search-bar w-100">
+            <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search by patient, doctor, phone..."
+              [(ngModel)]="searchTerm"
+              (input)="searchAppointments()"
+            />
+            @if (searchTerm) {
+              <button class="clear-search-btn" (click)="searchTerm = ''; searchAppointments()">
+                <i class="fa-solid fa-times"></i>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="col-12 col-md-5 col-lg-4">
+          <select class="status-filter w-100" [(ngModel)]="statusFilter" (change)="onStatusFilterChange()">
+            <option value="all">All Status</option>
+            <option value="pending_payment">Pending Payment</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled_expired">Cancelled/Expired</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Appointments Table -->
+      @if (filteredAppointments.length > 0) {
+        <div class="list-table-card">
+          <div class="table-responsive">
+            <table class="details-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Patient</th>
+                  <th>Phone</th>
+                  <th>Doctor</th>
+                  <th>Specialization</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Fee</th>
+                  <th>Status</th>
+                  <th class="text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (appointment of filteredAppointments; track appointment.id; let i = $index) {
+                  <tr>
+                    <td><span class="row-badge">{{ i + 1 }}</span></td>
+                    <td><span class="cell-primary">{{ appointment.patientName }}</span></td>
+                    <td><span class="cell-muted">{{ appointment.patientPhone }}</span></td>
+                    <td><span class="cell-primary">{{ getDoctorName(appointment) }}</span></td>
+                    <td><span class="cell-muted">{{ getDoctorSpec(appointment) }}</span></td>
+                    <td><span class="cell-primary">{{ formatDate(appointment.slot?.startTime || appointment.createdAt) }}</span></td>
+                    <td>
+                      <span class="cell-primary">
+                        {{ formatTime(appointment.slot?.startTime || appointment.createdAt) }} 
+                        - {{ formatTime(appointment.slot?.endTime || appointment.createdAt) }}
+                      </span>
+                    </td>
+                    <td><span class="cell-primary fee">Rs. {{ getFee(appointment) }}</span></td>
+                    <td>
+                      <span class="badge {{ getStatusBadge(appointment.status) }}">
+                        {{ getStatusLabel(appointment.status) }}
+                      </span>
+                    </td>
+                    <td class="text-center" style="white-space: nowrap;">
+                      @if (canCancel(appointment)) {
+                        <button class="list-action-btn cancel-btn" (click)="cancelAppointment(appointment.id)" title="Cancel">
+                          <i class="fa-solid fa-ban"></i>
+                        </button>
+                      }
+                      @if (canComplete(appointment)) {
+                        <button class="list-action-btn complete-btn" (click)="completeAppointment(appointment.id)" title="Complete">
+                          <i class="fa-solid fa-check-circle"></i>
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      } @else {
+        <div class="empty-state">
+          <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
+          <p>No appointments found.</p>
+        </div>
+      }
+    }
+
+    @if (viewMode === 'calendar') {
+      <app-appointment-calendar
+        [appointments]="filteredAppointments"
+        [isAdmin]="isAdmin"
+        [isDoctor]="isDoctor"
+        (cancel)="cancelAppointment($event)"
+        (complete)="completeAppointment($event)">
+      </app-appointment-calendar>
+    }
+
+  </div>
+</div>

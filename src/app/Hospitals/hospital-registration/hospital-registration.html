@@ -1,0 +1,328 @@
+<div class="categories-wrapper">
+
+  <!-- Ambient pulse-line watermark -->
+  <svg class="wrapper-pulse-bg" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,60 L220,60 L250,15 L280,105 L310,60 L340,80 L360,60 L1200,60"
+          fill="none" stroke="currentColor" stroke-width="2"/>
+  </svg>
+
+  <!-- Header -->
+  <div class="page-shell">
+  
+
+    <!-- Error Messages -->
+    @if (showErrorSummary && getFormErrors().length) {
+      <div class="status-alert status-alert--danger" role="alert">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <div>
+          <strong>Please fix the following errors</strong>
+          <ul>
+            @for (err of getFormErrors(); track err) {
+              <li>{{ err }}</li>
+            }
+          </ul>
+        </div>
+      </div>
+    }
+    @if (hospitalNotFound) {
+      <div class="status-alert status-alert--warning" role="status">
+        <i class="fa-solid fa-exclamation-triangle" aria-hidden="true"></i>
+        Hospital record not found. You can register a new one.
+      </div>
+    }
+
+    <!-- Main Form -->
+    <form [formGroup]="hospitalForm" (ngSubmit)="onSubmit()" class="chart-card">
+        <div class="header-row">
+      <h1 class="categories-title">
+        @if (editId) {
+          <i class="fa-solid fa-hospital-user" aria-hidden="true"></i> Update Hospital Profile
+        } @else {
+          <i class="fa-solid fa-square-plus" aria-hidden="true"></i> Register Hospital Details
+        }
+      </h1>
+      <a routerLink="/hospitalsList" class="btn-ghost" title="View Hospitals List">
+        <i class="fa-solid fa-list" aria-hidden="true"></i> Hospitals List
+      </a>
+    </div>
+
+    
+
+      <div class="field-grid">
+
+        <!-- Hospital Name -->
+        <div class="field span-5">
+          <label class="field-label">
+            <i class="fa-solid fa-hospital" aria-hidden="true"></i> Hospital Name
+            @if (hospitalForm.get('hospitalName')?.invalid && hospitalForm.get('hospitalName')?.touched) {
+              <span class="required-blip" aria-label="required, has an error"></span>
+            }
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-hospital field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              #hospitalNameInput
+              tabindex="1"
+              formControlName="hospitalName"
+              class="field-input"
+              placeholder="e.g. City General Hospital"
+            />
+          </div>
+        </div>
+
+        <!-- Contact Phone -->
+        <div class="field span-4">
+          <label class="field-label">
+            <i class="fa-solid fa-phone" aria-hidden="true"></i> Reception Phone
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-phone field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              tabindex="3"
+              formControlName="contactPhone"
+              class="field-input"
+              placeholder="e.g. +923001234567"
+            />
+          </div>
+        </div>
+
+        <!-- Plan -->
+        <div class="field span-3">
+          <label class="field-label">
+            <i class="fa-solid fa-cubes" aria-hidden="true"></i> Plan
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-cubes field-icon" aria-hidden="true"></i>
+            <select tabindex="4" formControlName="plan" class="field-input field-select">
+              @for (plan of plans; track plan) {
+                <option [value]="plan">{{ plan.toUpperCase() }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Address -->
+        <div class="field span-12">
+          <label class="field-label">
+            <i class="fa-solid fa-location-dot" aria-hidden="true"></i> Address
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-location-dot field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              tabindex="6"
+              formControlName="address"
+              class="field-input"
+              placeholder="Full physical hospital address"
+            />
+          </div>
+        </div>
+
+      </div>
+      <!-- Section 3: Opening Hours -->
+<div class="pulse-divider" aria-hidden="true">
+  <svg viewBox="0 0 600 40" preserveAspectRatio="none">
+    <path class="pulse-path" d="M0,20 L240,20 L262,4 L280,36 L298,20 L316,28 L332,20 L600,20"
+          fill="none" stroke-width="2"/>
+  </svg>
+</div>
+
+<div class="section-head">
+  <div class="section-copy">
+    <span class="section-title"><i class="fa-solid fa-clock" aria-hidden="true"></i> Opening Hours</span>
+    <span class="section-subtitle">Hospital operating days and timings</span>
+  </div>
+</div>
+
+<div class="field-grid">
+  <!-- 24/7 Toggle -->
+  <div class="field span-3">
+    <label class="field-label">
+      <i class="fa-solid fa-clock" aria-hidden="true"></i> 24/7 Hospital
+    </label>
+    <div class="toggle-wrapper">
+      <label class="toggle-switch">
+        <input type="checkbox" (change)="toggle24Hours($event)" [checked]="is24Hours">
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="toggle-label">{{ is24Hours ? 'Yes, 24/7' : 'No, specific hours' }}</span>
+    </div>
+  </div>
+
+  <!-- Opening Time -->
+  <div class="field span-3" [class.disabled]="is24Hours">
+    <label class="field-label">
+      <i class="fa-solid fa-sun" aria-hidden="true"></i> Opening Time
+    </label>
+    <div class="input-shell">
+      <i class="fa-solid fa-sun field-icon" aria-hidden="true"></i>
+      <input
+        type="time"
+        formControlName="openingTime"
+        class="field-input"
+        [disabled]="is24Hours"
+        step="60"
+      />
+    </div>
+  </div>
+
+  <!-- Closing Time -->
+  <div class="field span-3" [class.disabled]="is24Hours">
+    <label class="field-label">
+      <i class="fa-solid fa-moon" aria-hidden="true"></i> Closing Time
+    </label>
+    <div class="input-shell">
+      <i class="fa-solid fa-moon field-icon" aria-hidden="true"></i>
+      <input
+        type="time"
+        formControlName="closingTime"
+        class="field-input"
+        [disabled]="is24Hours"
+        step="60"
+      />
+    </div>
+  </div>
+<!-- Working Days - Checkboxes (No external library needed) -->
+<div class="field span-3">
+  <label class="field-label">
+    <i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Working Days
+  </label>
+  <div class="days-checkbox-group">
+    @for (day of daysOfWeek; track day) {
+      <label class="day-checkbox">
+        <input
+          type="checkbox"
+          [value]="day"
+          (change)="onDayChange($event)"
+          [checked]="isDaySelected(day)"
+        />
+        <span class="day-label">{{ day.substring(0, 3) }}</span>
+      </label>
+    }
+  </div>
+  <span class="field-hint">Select the days your hospital operates</span>
+</div>
+</div>
+
+      <!-- Pulse divider -->
+      <div class="pulse-divider" aria-hidden="true">
+        <svg viewBox="0 0 600 40" preserveAspectRatio="none">
+          <path class="pulse-path" d="M0,20 L240,20 L262,4 L280,36 L298,20 L316,28 L332,20 L600,20"
+                fill="none" stroke-width="2"/>
+        </svg>
+      </div>
+
+      <!-- Section 2: Admin Credentials -->
+      <div class="section-head">
+       
+      
+        <div class="section-copy">
+          <span class="section-title">Admin Account &amp; Credentials</span>
+          <span class="section-subtitle">Primary administrator sign-in</span>
+        </div>
+      </div>
+
+      <div class="field-grid">
+
+        <!-- Admin Name -->
+        <div class="field span-4">
+          <label class="field-label">
+            <i class="fa-solid fa-user" aria-hidden="true"></i> Admin Name
+            @if (hospitalForm.get('adminName')?.invalid && hospitalForm.get('adminName')?.touched) {
+              <span class="required-blip" aria-label="required, has an error"></span>
+            }
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-user field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              tabindex="7"
+              formControlName="adminName"
+              class="field-input"
+              placeholder="Dr. John Doe"
+            />
+          </div>
+        </div>
+
+        <!-- Admin Email -->
+        <div class="field span-4">
+          <label class="field-label">
+            <i class="fa-solid fa-envelope" aria-hidden="true"></i> Admin Email
+            @if (hospitalForm.get('adminEmail')?.invalid && hospitalForm.get('adminEmail')?.touched) {
+              <span class="required-blip" aria-label="required, has an error"></span>
+            }
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-envelope field-icon" aria-hidden="true"></i>
+            <input
+              type="email"
+              tabindex="8"
+              formControlName="adminEmail"
+              class="field-input"
+              placeholder="admin@hospital.com"
+            />
+          </div>
+        </div>
+
+        <!-- Admin Phone -->
+        <div class="field span-4">
+          <label class="field-label">
+            <i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> Admin Phone
+            @if (hospitalForm.get('adminPhone')?.invalid && hospitalForm.get('adminPhone')?.touched) {
+              <span class="required-blip" aria-label="required, has an error"></span>
+            }
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-mobile-screen field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              tabindex="9"
+              formControlName="adminPhone"
+              class="field-input"
+              placeholder="+923007654321"
+            />
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="field span-5">
+         <label class="field-label">
+    <i class="fa-solid fa-key"></i> Password
+
+    @if (isFieldInvalid('password')) {
+        <span class="required-blip"></span>
+    }
+</label>
+          <div class="input-shell">
+            <i class="fa-solid fa-key field-icon" aria-hidden="true"></i>
+            <input
+              type="password"
+              tabindex="10"
+              formControlName="password"
+              class="field-input"
+              [placeholder]="editId ? 'Leave blank to keep unchanged' : 'Min 8 characters'"
+            />
+          </div>
+          @if (!editId) {
+            <span class="field-hint">Min 8 characters</span>
+          }
+        </div>
+
+      </div>
+
+      <!-- Save Button -->
+      <div class="chart-card-footer">
+        <span class="footer-note">
+          <i class="fa-solid fa-shield-heart" aria-hidden="true"></i> Records are encrypted at rest
+        </span>
+        <button type="submit" class="btn-submit">
+          <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+          {{ editId ? 'Update Hospital' : 'Register Hospital' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

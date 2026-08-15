@@ -1,0 +1,233 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
+
+:host {
+  --paper: #F5FAF9;
+  --card: #FFFFFF;
+  --ink: #12241F;
+  --ink-soft: #557067;
+  --line: #D3E6E1;
+  --teal-900: #0B3D3A;
+  --teal-800: #0E4A46;
+  --teal-700: #12564F;
+  --teal-500: #1E8478;
+  --mint-100: #E3F3EE;
+  --mint-200: #C7E6DD;
+  --pulse: #E6553D;
+  --pulse-soft: #FBE4DE;
+
+  font-family: 'Inter', sans-serif;
+  display: block;
+}
+
+.nav-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 240px;
+  background: linear-gradient(180deg, var(--teal-900), #082e2b);
+  color: #E7F3F0;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0.85rem;
+  transition: width 0.2s ease;
+  z-index: 40;
+  box-shadow: 4px 0 24px -12px rgba(11, 61, 58, 0.4);
+}
+
+.nav-sidebar.collapsed { width: 76px; }
+
+.nav-sidebar * { box-sizing: border-box; }
+
+/* ---------- Brand ---------- */
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.3rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 0.85rem;
+  position: relative;
+}
+
+.brand-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--pulse);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.brand-copy { display: flex; flex-direction: column; overflow: hidden; }
+.brand-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+  white-space: nowrap;
+}
+.brand-sub {
+  font-size: 0.62rem;
+  color: #9FC6BE;
+  white-space: nowrap;
+}
+
+.collapse-btn {
+  position: absolute;
+  right: -0.85rem;
+  top: 0.5rem;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--teal-900);
+  font-size: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* ---------- Role pill ---------- */
+.role-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.03em;
+  color: #B7DED4;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  margin: 0 0.3rem 0.85rem;
+  width: fit-content;
+}
+.role-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--pulse);
+}
+
+/* ---------- Nav links ---------- */
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.7rem;
+  border-radius: 10px;
+  color: #C7E0DA;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.nav-link i { width: 18px; text-align: center; font-size: 0.9rem; color: #8FB6AC; }
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.nav-link.active {
+  background: var(--mint-100);
+  color: var(--teal-900);
+  font-weight: 600;
+}
+.nav-link.active i { color: var(--pulse); }
+
+/* ---------- Footer / user ---------- */
+.nav-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 0.3rem 0.75rem;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--pulse);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.user-copy { display: flex; flex-direction: column; overflow: hidden; }
+.user-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.user-role {
+  font-size: 0.65rem;
+  color: #9FC6BE;
+  white-space: nowrap;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #E8CFC9;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.logout-btn:hover { background: var(--pulse); color: #fff; border-color: var(--pulse); }
+
+/* ---------- Collapsed state tweaks ---------- */
+.nav-sidebar.collapsed .nav-link,
+.nav-sidebar.collapsed .nav-user,
+.nav-sidebar.collapsed .logout-btn {
+  justify-content: center;
+}
+.nav-sidebar.collapsed .role-pill { display: none; }
+
+/* ---------- Responsive: collapse to icon rail under 900px ---------- */
+@media (max-width: 900px) {
+  .nav-sidebar { width: 76px; padding: 1rem 0.5rem; }
+  .brand-copy, .role-pill, .user-copy, .logout-btn span, .nav-link span { display: none; }
+  .nav-link, .logout-btn { justify-content: center; }
+  .collapse-btn { display: none; }
+}

@@ -1,0 +1,106 @@
+<div class="calendar-wrapper">
+  <div class="calendar-layout" [class.has-panel]="selectedCell">
+
+    <!-- Month grid -->
+    <div class="calendar-card">
+      <div class="calendar-toolbar">
+        <button class="nav-btn" (click)="prevMonth()" aria-label="Previous month">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <span class="month-label">{{ monthLabel }}</span>
+        <button class="nav-btn" (click)="nextMonth()" aria-label="Next month">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+        <button class="today-btn" (click)="goToToday()">Today</button>
+      </div>
+
+      <div class="weekday-row">
+        @for (label of weekdayLabels; track label) {
+          <span class="weekday-label">{{ label }}</span>
+        }
+      </div>
+
+      <div class="calendar-grid">
+        @for (cell of calendarCells; track trackByCell($index, cell)) {
+          <button
+            type="button"
+            class="calendar-cell"
+            [class.is-outside]="!cell.isCurrentMonth"
+            [class.is-today]="cell.isToday"
+            [class.is-selected]="selectedCell && selectedCell.date.getTime() === cell.date.getTime()"
+            (click)="selectDay(cell)"
+          >
+            <span class="cell-date" [class.today-bubble]="cell.isToday">{{ cell.date.getDate() }}</span>
+
+            @if (cell.appointments.length > 0) {
+              <div class="cell-chips">
+                @for (appt of cell.appointments.slice(0, 2); track trackByAppointment($index, appt)) {
+                  <span class="cell-chip">
+                    <span class="dot {{ getStatusDotClass(appt.status) }}"></span>
+                    {{ formatTime(getAppointmentDate(appt)) }} - {{ getDoctorName(appt) }}
+                  </span>
+                }
+                @if (cell.appointments.length > 2) {
+                  <span class="cell-more">+{{ cell.appointments.length - 2 }} more</span>
+                }
+              </div>
+            }
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Day detail side panel -->
+    @if (selectedCell) {
+      <div class="day-panel">
+        <div class="day-panel-header">
+          <div>
+            <h3>{{ selectedDayLabel }}</h3>
+            <p>{{ selectedDayWeekday }} · {{ selectedCell.appointments.length }} Appointment{{ selectedCell.appointments.length === 1 ? '' : 's' }}</p>
+          </div>
+          <button class="close-btn" (click)="closePanel()" aria-label="Close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="day-panel-list">
+          @for (appt of selectedCell.appointments; track trackByAppointment($index, appt)) {
+            <div class="appt-card {{ getStatusDotClass(appt.status) }}">
+              <div class="appt-card-top">
+                <span class="appt-time">{{ formatTime(getAppointmentDate(appt)) }}</span>
+                <span class="badge {{ getStatusBadge(appt.status) }}">{{ getStatusLabel(appt.status) }}</span>
+              </div>
+              <div class="appt-title">{{ appt.patientName }}</div>
+              <div class="appt-meta">
+                <span><i class="fa-solid fa-user-doctor"></i> {{ getDoctorName(appt) }}</span>
+                @if (appt.patientPhone) {
+                  <span><i class="fa-solid fa-phone"></i> {{ appt.patientPhone }}</span>
+                }
+              </div>
+
+              @if (canCancel(appt) || canComplete(appt)) {
+                <div class="appt-actions">
+                  @if (canCancel(appt)) {
+                    <button class="appt-action-btn cancel" (click)="onCancel(appt)">
+                      <i class="fa-solid fa-ban"></i> Cancel
+                    </button>
+                  }
+                  @if (canComplete(appt)) {
+                    <button class="appt-action-btn complete" (click)="onComplete(appt)">
+                      <i class="fa-solid fa-check-circle"></i> Complete
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          } @empty {
+            <div class="day-panel-empty">
+              <i class="fa-solid fa-calendar-check"></i>
+              <p>No appointments this day.</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

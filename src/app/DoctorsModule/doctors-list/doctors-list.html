@@ -1,0 +1,163 @@
+<div class="list-wrapper">
+  <!-- Ambient pulse-line watermark -->
+  <svg class="wrapper-pulse-bg" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,60 L220,60 L250,15 L280,105 L310,60 L340,80 L360,60 L1200,60"
+          fill="none" stroke="currentColor" stroke-width="2"/>
+  </svg>
+
+  <div class="page-shell">
+    <!-- Header -->
+    <div class="header-row">
+      <h1 class="list-title">
+        <i class="fa-solid fa-user-doctor" aria-hidden="true"></i> Doctors Management
+      </h1>
+      <a routerLink="/addDoctors" class="btn-submit btn-submit--sm">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i> Add Doctor
+      </a>
+    </div>
+
+    <!-- Search and Record Count -->
+    <div class="toolbar-row">
+      <div class="list-search-bar">
+        <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search by name, specialization, email..."
+          [(ngModel)]="search"
+          (input)="searchDoctors()"
+        />
+        @if (search) {
+          <button
+            class="clear-search-btn"
+            type="button"
+            (click)="search = ''; searchDoctors()"
+            title="Clear search"
+          >
+            <i class="fa-solid fa-times"></i>
+          </button>
+        }
+      </div>
+      <span class="list-record-count">
+        <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+        {{ filteredDoctors.length }} record{{ filteredDoctors.length !== 1 ? 's' : '' }}
+      </span>
+    </div>
+
+    <!-- Table Card -->
+    <div class="list-table-card">
+      <div class="table-responsive gc-table-scroll"
+        appTableNavigation
+        [updateFn]="onUpdate"
+        [deleteFn]="onDelete"
+        >
+        @if (filteredDoctors.length > 0) {
+          <table class="details-table">
+            <thead>
+              <tr>
+                <th class="col-seq">#</th>
+                <th>Doctor Name</th>
+                <th>Specialization</th>
+                <th>Qualification</th>
+                <th>Experience</th>
+                <th>Fee (Rs.)</th>
+                <th>Contact</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (d of filteredDoctors; track d.id; let i = $index) {
+                <tr attr.data-index="{{ i }}">
+                  <td class="col-seq">
+                    <span class="row-badge">{{ i + 1 }}</span>
+                  </td>
+                  <td>
+                    <span class="doctor-name">
+                      <span class="doctor-avatar">{{ getInitials(d.name) }}</span>
+                      {{ d.name }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge {{ getSpecializationBadge(d.specialization) }}">
+                      {{ d.specialization }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="cell-muted">{{ d.qualification }}</span>
+                  </td>
+                  <td>
+                    <span class="cell-primary">{{ d.experienceYears }} years</span>
+                  </td>
+                  <td>
+                    <span class="cell-primary fee">Rs. {{ d.consultationFee }}</span>
+                  </td>
+                  <td>
+                    <div class="contact-info">
+                      <span class="cell-muted">{{ d.user?.email || d.email || 'N/A' }}</span>
+                      <span class="cell-muted phone">{{ d.user?.phoneNumber || d.phone || 'N/A' }}</span>
+                    </div>
+                  </td>
+                  <td class="text-center status-cell">
+                    <label class="toggle-switch">
+                      <input
+                        type="checkbox"
+                        [checked]="d.isActive"
+                        (change)="toggleStatus(d.id, $event)"
+                        [disabled]="updatingStatus[d.id]"
+                      />
+                      <span class="toggle-slider"></span>
+                    </label>
+                    <span class="status-label" [class.active]="d.isActive" [class.inactive]="!d.isActive">
+                      {{ d.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td class="text-center actions-cell">
+                    <!-- <button
+                      type="button"
+                      class="list-action-btn view-btn"
+                      (click)="viewDoctor(d.id)"
+                      title="View Details"
+                    >
+                      <i class="fa-solid fa-eye"></i>
+                    </button> -->
+                    <button
+                      type="button"
+                      class="list-action-btn edit-btn"
+                      (click)="editDoctor(d.id)"
+                      title="Edit"
+                    >
+                      <i class="fa-solid fa-pencil"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="list-action-btn delete-btn"
+                      (click)="deleteDoctor(d.id)"
+                      title="Delete"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <div class="list-empty-state">
+            <i class="fa-solid fa-user-doctor" aria-hidden="true"></i>
+            <div class="empty-title">
+              @if (search) {
+                No doctors found matching &ldquo;{{ search }}&rdquo;
+              } @else {
+                No doctors found
+              }
+            </div>
+            <div class="empty-sub">
+              Add a doctor to see them listed here.
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

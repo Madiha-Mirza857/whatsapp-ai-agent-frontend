@@ -1,0 +1,351 @@
+<div class="categories-wrapper">
+
+  <!-- Ambient pulse-line watermark -->
+  <svg class="wrapper-pulse-bg" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,60 L220,60 L250,15 L280,105 L310,60 L340,80 L360,60 L1200,60"
+          fill="none" stroke="currentColor" stroke-width="2"/>
+  </svg>
+
+  <div class="page-shell">
+
+    <!-- Header -->
+    <div class="header-row">
+      <h1 class="categories-title">
+        @if (editId) {
+          <i class="fa-solid fa-user-doctor" aria-hidden="true"></i> Update Doctor
+        } @else {
+          <i class="fa-solid fa-user-plus" aria-hidden="true"></i> Add Doctor
+        }
+      </h1>
+      <a routerLink="/doctorsList" class="btn-ghost" title="Doctors List">
+        <i class="fa-solid fa-list" aria-hidden="true"></i> Doctors List
+      </a>
+    </div>
+
+    <!-- Error Messages -->
+    @if (showErrorSummary && getFormErrors().length) {
+      <div class="status-alert status-alert--danger" role="alert">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <div>
+          <strong>Please fix the following errors</strong>
+          <ul>
+            @for (err of getFormErrors(); track err) {
+              <li>{{ err }}</li>
+            }
+          </ul>
+        </div>
+      </div>
+    }
+
+    @if (doctorNotFound) {
+      <div class="status-alert status-alert--warning" role="status">
+        <i class="fa-solid fa-exclamation-triangle" aria-hidden="true"></i>
+        Doctor record not found. You can add a new one.
+      </div>
+    }
+
+    <!-- Main Form -->
+    <form [formGroup]="doctorForm" (ngSubmit)="onSubmit()" class="chart-card">
+
+      <div class="field-grid">
+
+        <!-- Doctor Name -->
+        <div class="field span-6">
+          <label class="field-label">
+            <i class="fa-solid fa-user" aria-hidden="true"></i> Full Name
+            @if (isFieldInvalid('name')) {
+              <span class="required-blip" aria-label="has an error"></span>
+            }
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-user field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              #nameInput
+              formControlName="name"
+              class="field-input"
+              placeholder="Dr. John Doe"
+            />
+          </div>
+          @if (isFieldInvalid('name')) {
+            <span class="field-error">{{ getFieldError('name') }}</span>
+          }
+        </div>
+   <!-- Specialization - Searchable Dropdown -->
+<div class="field span-6" style="position: relative;">
+  <label class="field-label">
+    <i class="fa-solid fa-stethoscope" aria-hidden="true"></i> Specialization
+    @if (isFieldInvalid('specialization')) {
+      <span class="required-blip" aria-label="has an error"></span>
+    }
+  </label>
+  
+  <!-- Dropdown Trigger -->
+  <div class="searchable-dropdown" (click)="toggleDropdown()" style="position: relative;">
+    <div class="input-shell" style="cursor: pointer;">
+      <i class="fa-solid fa-stethoscope field-icon" aria-hidden="true"></i>
+      <input
+        type="text"
+        class="field-input"
+        placeholder="Search or select specialization..."
+        [value]="selectedSpecialization || ''"
+        readonly
+        style="cursor: pointer;"
+      />
+      <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
+    </div>
+  </div>
+
+  <!-- Dropdown Menu -->
+  @if (isDropdownOpen) {
+    <div class="dropdown-menu" (click)="$event.stopPropagation()">
+      <div class="dropdown-search">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input
+          #searchInput
+          type="text"
+          class="dropdown-search-input"
+          placeholder="Type to filter..."
+          (input)="onSearchInput($event)"
+          (keydown)="onDropdownKeydown($event)"
+        />
+      </div>
+      <div class="dropdown-list" #dropdownList>
+        @if (filteredSpecializations.length > 0) {
+          @for (spec of filteredSpecializations; track spec; let i = $index) {
+            <div 
+              class="dropdown-item"
+              [class.selected]="spec === selectedSpecialization"
+              [class.highlighted]="i === highlightedIndex"
+              (click)="selectSpecialization(spec)"
+              (mouseenter)="highlightedIndex = i"
+            >
+              <span>{{ spec }}</span>
+              @if (spec === selectedSpecialization) {
+                <i class="fa-solid fa-check"></i>
+              }
+            </div>
+          }
+        } @else {
+          <div class="dropdown-empty">
+            No specializations found. Select "Other" to add custom.
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (isFieldInvalid('specialization')) {
+    <span class="field-error">{{ getFieldError('specialization') }}</span>
+  }
+</div>
+
+<!-- ✅ Custom Specialization (shown when "Other" is selected) -->
+@if (showCustomSpecialization) {
+  <div class="field span-6">
+    <label class="field-label">
+      <i class="fa-solid fa-pen" aria-hidden="true"></i> Enter Specialization
+      <span class="required-blip" aria-label="required"></span>
+    </label>
+    <div class="input-shell">
+      <i class="fa-solid fa-pen field-icon" aria-hidden="true"></i>
+      <input
+        type="text"
+        formControlName="customSpecialization"
+        class="field-input"
+        placeholder="e.g. Interventional Cardiology"
+      />
+    </div>
+    @if (doctorForm.get('customSpecialization')?.invalid && doctorForm.get('customSpecialization')?.touched) {
+      <span class="field-error">Please enter the specialization name</span>
+    }
+    <span class="field-hint">Enter a custom specialization name</span>
+  </div>
+}
+        <!-- Qualification -->
+        <div class="field span-6">
+          <label class="field-label">
+            <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> Qualification
+            @if (isFieldInvalid('qualification')) {
+              <span class="required-blip" aria-label="has an error"></span>
+            }
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-graduation-cap field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              formControlName="qualification"
+              class="field-input"
+              placeholder="MBBS, FCPS"
+            />
+          </div>
+          @if (isFieldInvalid('qualification')) {
+            <span class="field-error">{{ getFieldError('qualification') }}</span>
+          }
+        </div>
+
+        <!-- Experience Years -->
+        <div class="field span-3">
+          <label class="field-label">
+            <i class="fa-solid fa-clock" aria-hidden="true"></i> Experience (Years)
+            @if (isFieldInvalid('experienceYears')) {
+              <span class="required-blip" aria-label="has an error"></span>
+            }
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-clock field-icon" aria-hidden="true"></i>
+            <input
+              type="number"
+              formControlName="experienceYears"
+              class="field-input"
+              placeholder="Years"
+              min="0"
+              max="60"
+            />
+          </div>
+          @if (isFieldInvalid('experienceYears')) {
+            <span class="field-error">{{ getFieldError('experienceYears') }}</span>
+          }
+        </div>
+
+        <!-- Consultation Fee -->
+        <div class="field span-3">
+          <label class="field-label">
+            <i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i> Fee (Rs.)
+            @if (isFieldInvalid('consultationFee')) {
+              <span class="required-blip" aria-label="has an error"></span>
+            }
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-money-bill-wave field-icon" aria-hidden="true"></i>
+            <input
+              type="number"
+              formControlName="consultationFee"
+              class="field-input"
+              placeholder="1000"
+              min="0"
+            />
+          </div>
+          @if (isFieldInvalid('consultationFee')) {
+            <span class="field-error">{{ getFieldError('consultationFee') }}</span>
+          }
+        </div>
+
+      </div>
+
+      <!-- Pulse Divider -->
+      <div class="pulse-divider" aria-hidden="true">
+        <svg viewBox="0 0 600 40" preserveAspectRatio="none">
+          <path class="pulse-path" d="M0,20 L240,20 L262,4 L280,36 L298,20 L316,28 L332,20 L600,20"
+                fill="none" stroke-width="2"/>
+        </svg>
+      </div>
+
+      <!-- Section: Login Credentials -->
+      <div class="section-head">
+        <div class="section-copy">
+          <span class="section-title"><i class="fa-solid fa-key" aria-hidden="true"></i> Login Credentials</span>
+          <span class="section-subtitle">Doctor account sign-in details</span>
+        </div>
+      </div>
+
+      <div class="field-grid">
+
+        <!-- Email -->
+        <div class="field span-6">
+          <label class="field-label">
+            <i class="fa-solid fa-envelope" aria-hidden="true"></i> Email
+            @if (isFieldInvalid('email')) {
+              <span class="required-blip" aria-label="has an error"></span>
+            }
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-envelope field-icon" aria-hidden="true"></i>
+            <input
+              type="email"
+              formControlName="email"
+              class="field-input"
+              placeholder="doctor@hospital.com"
+            />
+          </div>
+          @if (isFieldInvalid('email')) {
+            <span class="field-error">{{ getFieldError('email') }}</span>
+          }
+        </div>
+
+        <!-- Phone -->
+        <div class="field span-6">
+          <label class="field-label">
+            <i class="fa-solid fa-phone" aria-hidden="true"></i> Phone
+            @if (isFieldInvalid('phone')) {
+              <span class="required-blip" aria-label="has an error"></span>
+            }
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-phone field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              formControlName="phone"
+              class="field-input"
+              placeholder="+923001234567"
+            />
+          </div>
+          @if (isFieldInvalid('phone')) {
+            <span class="field-error">{{ getFieldError('phone') }}</span>
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="field span-6">
+          <label class="field-label">
+            <i class="fa-solid fa-lock" aria-hidden="true"></i> Password
+           @if (isFieldInvalid('password')) {
+    <span class="required-blip"></span>
+}
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-lock field-icon" aria-hidden="true"></i>
+            <input
+              type="password"
+              formControlName="password"
+              class="field-input"
+              [placeholder]="editId ? 'Leave blank to keep unchanged' : 'Min 8 characters'"
+            />
+          </div>
+          @if (!editId) {
+            <span class="field-hint">Min 8 characters</span>
+          }
+          @if (isFieldInvalid('password')) {
+            <span class="field-error">{{ getFieldError('password') }}</span>
+          }
+        </div>
+
+        <!-- Active Status -->
+        <div class="field span-6">
+          <label class="field-label">
+            <i class="fa-solid fa-toggle-on" aria-hidden="true"></i> Status
+          </label>
+          <div class="input-shell" style="padding: 0.3rem 0.75rem; gap: 0.5rem;">
+            <label class="toggle-switch" style="display: flex; align-items: center; gap: 0.5rem;">
+              <input type="checkbox" formControlName="isActive" style="width: 18px; height: 18px;">
+              <span style="font-size: 0.8rem; color: var(--ink-soft);">
+                {{ doctorForm.get('isActive')?.value ? 'Active' : 'Inactive' }}
+              </span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Save Button -->
+      <div class="chart-card-footer">
+        <span class="footer-note">
+          <i class="fa-solid fa-shield-heart" aria-hidden="true"></i> Records are encrypted at rest
+        </span>
+        <button type="submit" class="btn-submit" [disabled]="isLoading || doctorForm.invalid">
+          <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+          {{ isLoading ? 'Saving...' : (editId ? 'Update Doctor' : 'Add Doctor') }}
+        </button>
+      </div>
+
+    </form>

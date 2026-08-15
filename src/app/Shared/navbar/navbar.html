@@ -1,0 +1,59 @@
+<aside class="nav-sidebar" [class.collapsed]="collapsed">
+
+  <!-- Brand -->
+  <div class="nav-brand">
+    <div class="brand-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+    @if (!collapsed) {
+      <div class="brand-copy">
+        <span class="brand-name">MediConnect AI</span>
+        <span class="brand-sub">Healthcare Management</span>
+      </div>
+    }
+    <button class="collapse-btn" (click)="toggleCollapse()" [title]="collapsed ? 'Expand' : 'Collapse'">
+      <i class="fa-solid" [class.fa-chevron-right]="collapsed" [class.fa-chevron-left]="!collapsed"></i>
+    </button>
+  </div>
+
+  <!-- Role badge -->
+  @if (!collapsed) {
+    <div class="role-pill">
+      <span class="role-dot"></span> {{ roleLabel }}
+    </div>
+  }
+
+  <!-- Nav links -->
+  <nav class="nav-links">
+    @for (item of navItems; track item.route) {
+      <a
+        class="nav-link"
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [title]="item.label">
+        <i class="fa-solid {{ item.icon }}"></i>
+        @if (!collapsed) {
+          <span>{{ item.label }}</span>
+        }
+      </a>
+    }
+  </nav>
+
+  <!-- User + logout -->
+  <div class="nav-footer">
+    <div class="nav-user">
+      <div class="user-avatar">{{ userInitial }}</div>
+      @if (!collapsed) {
+        <div class="user-copy">
+          <span class="user-name">{{ userName }}</span>
+          <span class="user-role">{{ roleLabel }}</span>
+        </div>
+      }
+    </div>
+    <button class="logout-btn" (click)="logout()" title="Log out">
+      <i class="fa-solid fa-right-from-bracket"></i>
+      @if (!collapsed) {
+        <span>Log out</span>
+      }
+    </button>
+  </div>
+
+</aside>

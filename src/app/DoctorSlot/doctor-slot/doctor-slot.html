@@ -1,0 +1,762 @@
+<div class="categories-wrapper">
+  <!-- Ambient pulse-line watermark -->
+  <svg
+    class="wrapper-pulse-bg"
+    viewBox="0 0 1200 120"
+    preserveAspectRatio="none"
+    aria-hidden="true"
+  >
+    <path
+      d="M0,60 L220,60 L250,15 L280,105 L310,60 L340,80 L360,60 L1200,60"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    />
+  </svg>
+
+  <div class="page-shell">
+    <!-- Header -->
+    <div class="header-row">
+      <h1 class="categories-title">
+        <i class="fa-solid fa-clock" aria-hidden="true"></i> Doctor Slots
+        Management
+      </h1>
+      <div class="d-flex gap-2">
+        @if (isAdmin) {
+          <button
+            class="btn-ghost"
+            (click)="toggleBulkForm()"
+            title="Bulk Generate"
+          >
+            <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+            {{ showBulkForm ? "Single Slot" : "Bulk Generate" }}
+          </button>
+        }
+        <button
+          class="btn-submit btn-submit--sm"
+          (click)="loadSlots()"
+          title="Refresh"
+        >
+          <i class="fa-solid fa-rotate" aria-hidden="true"></i> Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Single Slot Form -->
+    @if (!showBulkForm) {
+      <form
+        [formGroup]="singleForm"
+        (ngSubmit)="generateSlots()"
+        class="chart-card"
+      >
+        <div class="field-grid">
+        <!-- Doctor Selection with Searchable Dropdown (Admin only) -->
+@if (isAdmin) {
+  <div class="field span-3" style="position: relative;">
+    <label class="field-label">
+      <i class="fa-solid fa-user-doctor" aria-hidden="true"></i> Select Doctor
+      @if (isFieldInvalid(singleForm, 'doctorId')) {
+        <span class="required-blip"></span>
+      }
+    </label>
+    
+    <!-- Searchable Dropdown Trigger -->
+    <div class="searchable-dropdown" (click)="toggleDropdown()" style="position: relative; cursor: pointer;">
+      <div class="input-shell" style="cursor: pointer;">
+        <i class="fa-solid fa-user-doctor field-icon" aria-hidden="true"></i>
+        <input
+          type="text"
+          class="field-input"
+          placeholder="Search or select doctor..."
+          [value]="getSelectedDoctorName()"
+          readonly
+          style="cursor: pointer;"
+        />
+        <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
+      </div>
+    </div>
+
+    <!-- Dropdown Menu -->
+    @if (isDropdownOpen) {
+      <div class="dropdown-menu" (click)="$event.stopPropagation()" style="display: block !important;">
+        <div class="dropdown-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input
+            #searchInput
+            type="text"
+            class="dropdown-search-input"
+            placeholder="Type to filter doctors..."
+            (input)="onSearchInput($event)"
+            (keydown)="onDropdownKeydown($event)"
+          />
+        </div>
+        <div class="dropdown-list" #dropdownList>
+          @if (filteredDoctors.length > 0) {
+            @for (doc of filteredDoctors; track doc.id; let i = $index) {
+              <div 
+                class="dropdown-item"
+                [class.selected]="doc.id === selectedDoctorId"
+                [class.highlighted]="i === highlightedIndex"
+                (click)="selectDoctor(doc)"
+                (mouseenter)="highlightedIndex = i"
+              >
+                <span>Dr. {{ doc.name }}</span>
+                <span class="badge badge-sm">{{ doc.specialization }}</span>
+                @if (doc.id === selectedDoctorId) {
+                  <i class="fa-solid fa-check" style="color: var(--teal-500);"></i>
+                }
+              </div>
+            }
+          } @else {
+            <div class="dropdown-empty">
+              No doctors found
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (isFieldInvalid(singleForm, 'doctorId')) {
+      <span class="field-error">{{ getFieldError(singleForm, 'doctorId') }}</span>
+    }
+  </div>
+}
+
+          <!-- For Doctor role - show their name (readonly) -->
+          @if (isDoctor) {
+            <div class="field span-3">
+              <label class="field-label">
+                <i class="fa-solid fa-user-doctor" aria-hidden="true"></i>
+                Doctor
+              </label>
+              <div class="input-shell">
+                <i
+                  class="fa-solid fa-user-doctor field-icon"
+                  aria-hidden="true"
+                ></i>
+                <input
+                  type="text"
+                  class="field-input"
+                  [value]="currentUser?.name || 'Current Doctor'"
+                  disabled
+                  style="opacity: 0.7"
+                />
+              </div>
+            </div>
+          }
+
+          <!-- Date -->
+          <div class="field span-3">
+            <label class="field-label">
+              <i class="fa-solid fa-calendar-day" aria-hidden="true"></i> Date
+              @if (isFieldInvalid(singleForm, "date")) {
+                <span class="required-blip"></span>
+              }
+            </label>
+            <div class="input-shell">
+              <i
+                class="fa-solid fa-calendar-day field-icon"
+                aria-hidden="true"
+              ></i>
+              <input
+                type="date"
+                #dateInput
+                formControlName="date"
+                class="field-input"
+              />
+            </div>
+            @if (isFieldInvalid(singleForm, "date")) {
+              <span class="field-error">{{
+                getFieldError(singleForm, "date")
+              }}</span>
+            }
+          </div>
+
+          <!-- Start Time -->
+          <div class="field span-3">
+            <label class="field-label">
+              <i class="fa-solid fa-sun" aria-hidden="true"></i> Start Time
+            </label>
+            <div class="input-shell">
+              <i class="fa-solid fa-sun field-icon" aria-hidden="true"></i>
+              <input
+                type="time"
+                formControlName="startTime"
+                class="field-input"
+                step="60"
+              />
+            </div>
+          </div>
+
+          <!-- End Time -->
+          <div class="field span-3">
+            <label class="field-label">
+              <i class="fa-solid fa-moon" aria-hidden="true"></i> End Time
+            </label>
+            <div class="input-shell">
+              <i class="fa-solid fa-moon field-icon" aria-hidden="true"></i>
+              <input
+                type="time"
+                formControlName="endTime"
+                class="field-input"
+                step="60"
+              />
+            </div>
+          </div>
+
+          <!-- Duration -->
+          <div class="field span-3">
+            <label class="field-label">
+              <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i>
+              Duration (mins)
+              @if (isFieldInvalid(singleForm, "slotDurationMinutes")) {
+                <span class="required-blip"></span>
+              }
+            </label>
+            <div class="input-shell">
+              <i
+                class="fa-solid fa-hourglass-half field-icon"
+                aria-hidden="true"
+              ></i>
+              <select
+                formControlName="slotDurationMinutes"
+                class="field-input field-select"
+              >
+                @for (dur of durationOptions; track dur) {
+                  <option [value]="dur">{{ dur }} min</option>
+                }
+              </select>
+            </div>
+            @if (isFieldInvalid(singleForm, "slotDurationMinutes")) {
+              <span class="field-error">{{
+                getFieldError(singleForm, "slotDurationMinutes")
+              }}</span>
+            }
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="chart-card-footer">
+          <span class="footer-note">
+            <i class="fa-solid fa-shield-heart" aria-hidden="true"></i> Slots
+            will be available for booking
+          </span>
+          <button
+            type="submit"
+            class="btn-submit"
+            [disabled]="isLoading || singleForm.invalid"
+          >
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            {{ isLoading ? "Generating..." : "Generate Slots" }}
+          </button>
+        </div>
+      </form>
+    }
+
+    <!-- Bulk Slot Form (Admin only) -->
+    @if (isAdmin && showBulkForm) {
+      <form
+        [formGroup]="bulkForm"
+        (ngSubmit)="generateBulkSlots()"
+        class="chart-card"
+      >
+        <div class="field-grid">
+          <!-- Start Date -->
+          <div class="field span-3">
+            <label class="field-label">
+              <i class="fa-solid fa-calendar-start" aria-hidden="true"></i>
+              Start Date
+              @if (isFieldInvalid(bulkForm, "startDate")) {
+                <span class="required-blip"></span>
+              }
+            </label>
+            <div class="input-shell">
+              <i
+                class="fa-solid fa-calendar-start field-icon"
+                aria-hidden="true"
+              ></i>
+              <input
+                type="date"
+                formControlName="startDate"
+                class="field-input"
+              />
+            </div>
+            @if (isFieldInvalid(bulkForm, "startDate")) {
+              <span class="field-error">{{
+                getFieldError(bulkForm, "startDate")
+              }}</span>
+            }
+          </div>
+
+          <!-- End Date -->
+          <div class="field span-3">
+            <label class="field-label">
+              <i class="fa-solid fa-calendar-end" aria-hidden="true"></i> End
+              Date
+              @if (isFieldInvalid(bulkForm, "endDate")) {
+                <span class="required-blip"></span>
+              }
+            </label>
+            <div class="input-shell">
+              <i
+                class="fa-solid fa-calendar-end field-icon"
+                aria-hidden="true"
+              ></i>
+              <input
+                type="date"
+                formControlName="endDate"
+                class="field-input"
+              />
+            </div>
+            @if (isFieldInvalid(bulkForm, "endDate")) {
+              <span class="field-error">{{
+                getFieldError(bulkForm, "endDate")
+              }}</span>
+            }
+          </div>
+
+          <!-- Start Time -->
+          <div class="field span-2">
+            <label class="field-label">
+              <i class="fa-solid fa-sun" aria-hidden="true"></i> Start Time
+            </label>
+            <div class="input-shell">
+              <i class="fa-solid fa-sun field-icon" aria-hidden="true"></i>
+              <input
+                type="time"
+                formControlName="startTime"
+                class="field-input"
+                step="60"
+              />
+            </div>
+          </div>
+
+          <!-- End Time -->
+          <div class="field span-2">
+            <label class="field-label">
+              <i class="fa-solid fa-moon" aria-hidden="true"></i> End Time
+            </label>
+            <div class="input-shell">
+              <i class="fa-solid fa-moon field-icon" aria-hidden="true"></i>
+              <input
+                type="time"
+                formControlName="endTime"
+                class="field-input"
+                step="60"
+              />
+            </div>
+          </div>
+
+          <!-- Duration -->
+          <div class="field span-2">
+            <label class="field-label">
+              <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i>
+              Duration (mins)
+              @if (isFieldInvalid(bulkForm, "slotDurationMinutes")) {
+                <span class="required-blip"></span>
+              }
+            </label>
+            <div class="input-shell">
+              <i
+                class="fa-solid fa-hourglass-half field-icon"
+                aria-hidden="true"
+              ></i>
+              <select
+                formControlName="slotDurationMinutes"
+                class="field-input field-select"
+              >
+                @for (dur of durationOptions; track dur) {
+                  <option [value]="dur">{{ dur }} min</option>
+                }
+              </select>
+            </div>
+            @if (isFieldInvalid(bulkForm, "slotDurationMinutes")) {
+              <span class="field-error">{{
+                getFieldError(bulkForm, "slotDurationMinutes")
+              }}</span>
+            }
+          </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        <div class="chart-card-footer">
+          <span class="footer-note">
+            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            Doctors with existing slots will be skipped
+          </span>
+          <div class="d-flex gap-2">
+            <button
+              type="button"
+              class="btn-ghost"
+              (click)="previewBulkSlots()"
+              [disabled]="isLoading || bulkForm.invalid"
+            >
+              <i class="fa-solid fa-eye" aria-hidden="true"></i> Preview
+            </button>
+            <button
+              type="submit"
+              class="btn-submit"
+              [disabled]="isLoading || bulkForm.invalid"
+            >
+              <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+              {{ isLoading ? "Generating..." : "Generate Bulk" }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Preview Results -->
+        @if (showPreview && previewData) {
+          <div class="preview-box mt-3">
+            <h4><i class="fa-solid fa-eye" aria-hidden="true"></i> Preview</h4>
+            <p>{{ previewData.message }}</p>
+            <div class="row g-2 mt-2">
+              <div class="col-md-6">
+                <div class="preview-stats">
+                  <span class="stat-label">Total Doctors:</span>
+                  <span class="stat-value">{{ previewData.totalDoctors }}</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="preview-stats">
+                  <span class="stat-label">Total Dates:</span>
+                  <span class="stat-value">{{ previewData.totalDates }}</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="preview-stats">
+                  <span class="stat-label">Slots to Create:</span>
+                  <span class="stat-value text-success">{{
+                    previewData.totalSlotsToCreate
+                  }}</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="preview-stats">
+                  <span class="stat-label">Skipped:</span>
+                  <span class="stat-value text-warning">{{
+                    previewData.skipped?.length || 0
+                  }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Bulk Result -->
+        @if (bulkGenerated && bulkResult) {
+          <div
+            class="preview-box mt-3"
+            [class.success]="bulkResult.totalCreated > 0"
+            [class.warning]="bulkResult.totalCreated === 0"
+          >
+            <h4>
+              <i class="fa-solid fa-check-circle" aria-hidden="true"></i> Result
+            </h4>
+            <p>{{ bulkResult.message }}</p>
+            <div class="row g-2 mt-2">
+              <div class="col-md-6">
+                <div class="preview-stats">
+                  <span class="stat-label">Total Created:</span>
+                  <span class="stat-value text-success">{{
+                    bulkResult.totalCreated
+                  }}</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="preview-stats">
+                  <span class="stat-label">Skipped:</span>
+                  <span class="stat-value text-warning">{{
+                    bulkResult.skippedDoctors?.length || 0
+                  }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </form>
+    }
+
+    <!-- Slots List -->
+    <div class="list-section" style="margin-top: 2rem">
+      <div
+        class="list-header"
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+        "
+      >
+        <h2
+          class="list-title"
+          style="
+            font-family: &quot;Space Grotesk&quot;, sans-serif;
+            font-size: 1.1rem;
+            color: var(--teal-900);
+          "
+        >
+          <i class="fa-solid fa-list" aria-hidden="true"></i> Slots
+          <span
+            style="font-size: 0.8rem; color: var(--ink-soft); font-weight: 400"
+          >
+            ({{ filteredSlots.length }})
+          </span>
+        </h2>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <!-- Bulk Actions (Admin only) -->
+          @if (isAdmin && filteredSlots.length > 0) {
+            <div class="bulk-actions">
+              <button
+                class="btn-ghost btn-sm"
+                (click)="selectAllSlots()"
+                title="Select All"
+              >
+                <i class="fa-solid fa-check-double"></i> Select All
+              </button>
+              <button
+                class="btn-ghost btn-sm"
+                (click)="deselectAllSlots()"
+                title="Clear"
+              >
+                <i class="fa-solid fa-times"></i> Clear
+              </button>
+              <button
+                class="btn-submit btn-submit--sm btn-danger"
+                (click)="bulkDeleteSlots()"
+                [disabled]="selectedSlotIds.length === 0"
+                title="Delete Selected"
+              >
+                <i class="fa-solid fa-trash-can"></i> Delete ({{
+                  selectedSlotIds.length
+                }})
+              </button>
+            </div>
+          }
+          <!-- Search -->
+          <div class="input-shell" style="min-width: 200px">
+            <i
+              class="fa-solid fa-magnifying-glass field-icon"
+              aria-hidden="true"
+            ></i>
+            <input
+              type="text"
+              class="field-input"
+              placeholder="Search slots..."
+              [(ngModel)]="searchTerm"
+              (input)="searchSlots()"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Slots Table -->
+      @if (filteredSlots.length > 0) {
+        <div class="list-table-card">
+          <div class="table-responsive">
+            <table class="details-table">
+              <thead>
+                <tr>
+                  @if (isAdmin) {
+                    <th style="width: 40px">
+                      <input
+                        type="checkbox"
+                        [checked]="isAllSelected"
+                        (change)="toggleSelectAll()"
+                      />
+                    </th>
+                  }
+                  <th>#</th>
+                  <th>Doctor</th>
+                  <th>Specialization</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                  <th class="text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody
+                appTableNavigation
+                [updateFn]="onUpdate"
+                [deleteFn]="onDelete"
+                [detailsFn]="onDetails"
+              >
+                @for (slot of filteredSlots; track slot.id; let i = $index) {
+                  <tr
+                    attr.data-index="{{ i }}"
+                    [class.selected]="isAdmin && isSlotSelected(slot.id)"
+                  >
+                    @if (isAdmin) {
+                      <td>
+                        <input
+                          type="checkbox"
+                          [checked]="isSlotSelected(slot.id)"
+                          (change)="toggleSlotSelection(slot.id)"
+                        />
+                      </td>
+                    }
+                    <td>
+                      <span class="row-badge">{{ i + 1 }}</span>
+                    </td>
+                    <td>
+                      <span class="cell-primary">{{
+                        getDoctorName(slot)
+                      }}</span>
+                    </td>
+                    <td>
+                      <span class="cell-muted">{{ getDoctorSpec(slot) }}</span>
+                    </td>
+                    <td>
+                      <span class="cell-primary">{{
+                        formatDate(slot.startTime)
+                      }}</span>
+                    </td>
+                    <td>
+                      <span class="cell-primary"
+                        >{{ formatTime(slot.startTime) }} -
+                        {{ formatTime(slot.endTime) }}</span
+                      >
+                    </td>
+                    <td>
+                      <select
+                        class="status-select"
+                        [value]="slot.status"
+                        (change)="updateStatus(slot.id, $event)"
+                        [class.status-available]="slot.status === 'available'"
+                        [class.status-reserved]="slot.status === 'reserved'"
+                        [class.status-booked]="slot.status === 'booked'"
+                      >
+                        <option value="available">Available</option>
+                        <option value="reserved">Reserved</option>
+                        <option value="booked">Booked</option>
+                      </select>
+                    </td>
+                    <td class="text-center" style="white-space: nowrap">
+                      <button
+                        type="button"
+                        class="list-action-btn edit-btn"
+                        (click)="editSlot(slot)"
+                        title="Edit"
+                      >
+                        <i class="fa-solid fa-pencil"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="list-action-btn delete-btn"
+                        (click)="deleteSlot(slot.id)"
+                        title="Delete"
+                      >
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      } @else {
+        <div class="empty-state">
+          <i class="fa-solid fa-clock" aria-hidden="true"></i>
+          <p>No slots found. Generate slots to get started!</p>
+        </div>
+      }
+    </div>
+
+    <!-- Edit Slot Modal -->
+    @if (showEditModal && editingSlot) {
+      <div class="modal-overlay" (click)="closeEditModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3><i class="fa-solid fa-pencil"></i> Edit Slot</h3>
+            <button class="modal-close" (click)="closeEditModal()">
+              &times;
+            </button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="editForm">
+              <div class="field">
+                <label class="field-label">Doctor</label>
+                <div class="input-shell">
+                  <i class="fa-solid fa-user-doctor field-icon"></i>
+                  <input
+                    type="text"
+                    class="field-input"
+                    [value]="getDoctorName(editingSlot)"
+                    disabled
+                  />
+                </div>
+              </div>
+              <div class="field">
+                <label class="field-label">Date</label>
+                <div class="input-shell">
+                  <i class="fa-solid fa-calendar-day field-icon"></i>
+                  <input
+                    type="date"
+                    formControlName="editDate"
+                    class="field-input"
+                  />
+                </div>
+              </div>
+              <div class="row g-2">
+                <div class="col-6">
+                  <div class="field">
+                    <label class="field-label">Start Time</label>
+                    <div class="input-shell">
+                      <i class="fa-solid fa-sun field-icon"></i>
+                      <input
+                        type="time"
+                        formControlName="editStartTime"
+                        class="field-input"
+                        step="60"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="field">
+                    <label class="field-label">End Time</label>
+                    <div class="input-shell">
+                      <i class="fa-solid fa-moon field-icon"></i>
+                      <input
+                        type="time"
+                        formControlName="editEndTime"
+                        class="field-input"
+                        step="60"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="field">
+                <label class="field-label">Status</label>
+                <div class="input-shell">
+                  <i class="fa-solid fa-circle field-icon"></i>
+                  <select
+                    formControlName="editStatus"
+                    class="field-input field-select"
+                  >
+                    <option value="available">Available</option>
+                    <option value="reserved">Reserved</option>
+                    <option value="booked">Booked</option>
+                  </select>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-ghost" (click)="closeEditModal()">Cancel</button>
+            <button
+              class="btn-submit"
+              (click)="saveEditSlot()"
+              [disabled]="isLoading || editForm.invalid"
+            >
+              <i class="fa-solid fa-floppy-disk"></i> Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
