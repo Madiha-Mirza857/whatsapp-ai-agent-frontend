@@ -51,7 +51,7 @@
       <div class="field-grid">
 
         <!-- Hospital Name -->
-        <div class="field span-5">
+        <div class="field span-3">
           <label class="field-label">
             <i class="fa-solid fa-hospital" aria-hidden="true"></i> Hospital Name
             @if (hospitalForm.get('hospitalName')?.invalid && hospitalForm.get('hospitalName')?.touched) {
@@ -72,9 +72,9 @@
         </div>
 
         <!-- Contact Phone -->
-        <div class="field span-4">
+        <div class="field span-3">
           <label class="field-label">
-            <i class="fa-solid fa-phone" aria-hidden="true"></i> Reception Phone
+            <i class="fa-solid fa-phone" aria-hidden="true"></i> Whatsapp Phone
           </label>
           <div class="input-shell">
             <i class="fa-solid fa-phone field-icon" aria-hidden="true"></i>
@@ -88,6 +88,25 @@
           </div>
         </div>
 
+
+      @if (editId) {
+       
+ <div class="field span-3">
+          <label class="field-label">
+            <i class="fa-solid fa-phone" aria-hidden="true"></i> WhatsApp Phone id
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-phone field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+                formControlName="whatsappPhoneNumberId"
+                class="field-input"
+                placeholder="e.g. 109364xxxxxxxxx (from Meta dashboard)"
+            />
+          </div>
+        </div>
+  
+      }
         <!-- Plan -->
         <div class="field span-3">
           <label class="field-label">

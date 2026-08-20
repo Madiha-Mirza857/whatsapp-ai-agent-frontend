@@ -10,6 +10,7 @@ import { DoctorsList } from './DoctorsModule/doctors-list/doctors-list';
 import { DoctorDashboard } from './doctor/doctor-dashboard/doctor-dashboard';
 import { DoctorSlotComponent } from './DoctorSlot/doctor-slot/doctor-slot';
 import { AppointmentComponent } from './appointment/appointment-component/appointment-component';
+import { Dashboard } from './superadmin/dashboard/dashboard';
 
 
 export const routes: Routes = [
@@ -55,7 +56,7 @@ export const routes: Routes = [
   
     ],
   },
-
+{path:"super-admin/dashboard",component:Dashboard},
   {path:"appointment",component:AppointmentComponent, canActivate: [AuthGuard, RoleGuard],data: { roles: ['DOCTOR','HOSPITAL_ADMIN']}},
 
   // Redirect to appropriate dashboard

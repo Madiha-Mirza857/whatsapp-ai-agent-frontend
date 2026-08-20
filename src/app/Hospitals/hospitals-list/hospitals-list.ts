@@ -58,16 +58,16 @@ export class HospitalsList implements OnInit {
         h.user?.phoneNumber?.toLowerCase().includes(value) ||
         h.plan?.toLowerCase().includes(value) ||
         h.status?.toLowerCase().includes(value) ||
-        // ✅ Add opening hours to search
         h.openingTime?.toLowerCase().includes(value) ||
         h.closingTime?.toLowerCase().includes(value) ||
         (h.is24Hours && '24/7'.includes(value)) ||
-        h.workingDays?.some(day => day.toLowerCase().includes(value))
+        h.workingDays?.some(day => day.toLowerCase().includes(value)) ||
+        // ✅ NEW
+        h.whatsappPhoneNumberId?.toLowerCase().includes(value)
     );
   }
   this.cdr.detectChanges();
 }
-
   updateStatus(id: string, event: Event): void {
     const select = event.target as HTMLSelectElement;
     const newStatus = select.value as 'pending' | 'active' | 'suspended';

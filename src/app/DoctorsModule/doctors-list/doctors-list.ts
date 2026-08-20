@@ -122,7 +122,7 @@ export class DoctorsList implements OnInit {
   }
 
   editDoctor(id: string): void {
-    this.router.navigate(['/addDoctors'], { queryParams: { id } });
+    this.router.navigate(['/admin/doctors'], { queryParams: { id } });
   }
 
   // viewDoctor(id: string): void {

@@ -50,34 +50,36 @@ export class HospitalRegistration implements OnInit, AfterViewInit {
   showErrorSummary = false;
   hospitalNotFound = false;
 
-  hospitalForm = new FormGroup({
-    hospitalName: new FormControl('', [Validators.required, Validators.maxLength(150)]),
-    address: new FormControl(''),
-    contactPhone: new FormControl('', [
-      Validators.pattern(/^[0-9+]{10,15}$/),
-    ]),
-    adminName: new FormControl('', [Validators.required, Validators.maxLength(100)]),
-    adminEmail: new FormControl('', [
-      Validators.required,
-      Validators.email,
-      Validators.maxLength(100),
-    ]),
-    adminPhone: new FormControl('', [
-      Validators.required,
-      Validators.pattern(/^[0-9+]{10,15}$/),
-    ]),
-   password: new FormControl('', [
+hospitalForm = new FormGroup({
+  hospitalName: new FormControl('', [Validators.required, Validators.maxLength(150)]),
+  address: new FormControl(''),
+  contactPhone: new FormControl('', [
+    Validators.pattern(/^[0-9+]{10,15}$/),
+  ]),
+  adminName: new FormControl('', [Validators.required, Validators.maxLength(100)]),
+  adminEmail: new FormControl('', [
+    Validators.required,
+    Validators.email,
+    Validators.maxLength(100),
+  ]),
+  adminPhone: new FormControl('', [
+    Validators.required,
+    Validators.pattern(/^[0-9+]{10,15}$/),
+  ]),
+  password: new FormControl('', [
     Validators.required,
     Validators.minLength(8)
-]),
-    plan: new FormControl('basic', Validators.required),
-    status: new FormControl('pending'),
-    openingTime: new FormControl<string>(''),
-    closingTime: new FormControl<string>(''),
-    workingDays: new FormControl<string[]>([]),
-    is24Hours: new FormControl<boolean>(false),
-    holidays: new FormControl<string[]>([]),
-  });
+  ]),
+  plan: new FormControl('basic', Validators.required),
+  status: new FormControl('pending'),
+  openingTime: new FormControl<string>(''),
+  closingTime: new FormControl<string>(''),
+  workingDays: new FormControl<string[]>([]),
+  is24Hours: new FormControl<boolean>(false),
+  holidays: new FormControl<string[]>([]),
+ 
+  whatsappPhoneNumberId: new FormControl(''),
+});
 
   plans = ['basic', 'professional', 'enterprise'];
   statuses = ['pending', 'active', 'suspended'];
@@ -160,112 +162,111 @@ isDaySelected(day: string): boolean {
     setTimeout(() => this.hospitalNameInput?.nativeElement.focus(), 0);
   }
 
-  loadForEdit(): void {
-    if (!this.editId) return;
+loadForEdit(): void {
+  if (!this.editId) return;
 
-    this.hospitalNotFound = false;
-    this.hospitalService.getById(this.editId).subscribe({
-      next: (res: any) => {
-        // Extract fields from nested user entity or root fields
-        const adminEmail = res.user?.email || res.adminEmail || '';
-        const adminPhone = res.user?.phoneNumber || res.adminPhone || res.contactPhone || '';
+  this.hospitalNotFound = false;
+  this.hospitalService.getById(this.editId).subscribe({
+    next: (res: any) => {
+      const adminEmail = res.user?.email || res.adminEmail || '';
+      const adminPhone = res.user?.phoneNumber || res.adminPhone || res.contactPhone || '';
 
-        this.hospitalForm.patchValue({
-          hospitalName: res.hospitalName,
-          address: res.address,
-          contactPhone: res.contactPhone,
-          adminName: res.adminName,
-          adminEmail: adminEmail,
-          adminPhone: adminPhone,
-          plan: res.plan,
-          status: res.status,
-           openingTime: res.openingTime || '09:00',
-          closingTime: res.closingTime || '17:00',
-          workingDays: res.workingDays || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-          is24Hours: res.is24Hours || false,
-          holidays: res.holidays || [],
-        });
-        this.is24Hours = res.is24Hours || false;
+      this.hospitalForm.patchValue({
+        hospitalName: res.hospitalName,
+        address: res.address,
+        contactPhone: res.contactPhone,
+        adminName: res.adminName,
+        adminEmail: adminEmail,
+        adminPhone: adminPhone,
+        plan: res.plan,
+        status: res.status,
+        openingTime: res.openingTime || '09:00',
+        closingTime: res.closingTime || '17:00',
+        workingDays: res.workingDays || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        is24Hours: res.is24Hours || false,
+        holidays: res.holidays || [],
+       
+        whatsappPhoneNumberId: res.whatsappPhoneNumberId || '',
+      });
+      this.is24Hours = res.is24Hours || false;
 
-        // Password is optional during edit
-        this.hospitalForm.get('password')?.clearValidators();
-        this.hospitalForm.get('password')?.updateValueAndValidity();
+      this.hospitalForm.get('password')?.clearValidators();
+      this.hospitalForm.get('password')?.updateValueAndValidity();
 
-        this.focusHospitalName();
-        this.cdr.detectChanges();
+      this.focusHospitalName();
+      this.cdr.detectChanges();
+    },
+    error: () => {
+      this.hospitalNotFound = true;
+      this.editId = null;
+      this.hospitalForm.reset();
+      this.cdr.detectChanges();
+    },
+  });
+}
+onSubmit(): void {
+  this.hospitalForm.markAllAsTouched();
+
+  if (this.hospitalForm.invalid) {
+    this.showErrorSummary = true;
+    return;
+  }
+
+  this.showErrorSummary = false;
+  const formData = { ...this.hospitalForm.value };
+
+  if (!formData.password) delete formData.password;
+  // ✅ NEW: don't send empty string — avoids unique-constraint collisions on the backend
+  if (!formData.whatsappPhoneNumberId) delete formData.whatsappPhoneNumberId;
+
+  if (this.editId) {
+    this.hospitalService.update(this.editId, formData as any).subscribe({
+      next: () => {
+        this.toastService.show('Hospital Updated Successfully!', 'success');
+        this.resetForm();
       },
-      error: () => {
-        this.hospitalNotFound = true;
-        this.editId = null;
-        this.hospitalForm.reset();
-        this.cdr.detectChanges();
+      error: (err) => {
+        console.error('Error updating hospital:', err);
+        const errorMessage = err.error?.message || 'Failed to update hospital';
+        this.toastService.show(errorMessage, 'error');
+        this.showErrorSummary = true;
+      },
+    });
+  } else {
+    this.hospitalService.register(formData as any).subscribe({
+      next: () => {
+        this.toastService.show('Hospital Onboarded Successfully!', 'success');
+        this.resetForm();
+      },
+      error: (err) => {
+        console.error('Error registering hospital:', err);
+        const errorMessage = err.error?.message || 'Failed to register hospital';
+        this.toastService.show(errorMessage, 'error');
+        this.showErrorSummary = true;
       },
     });
   }
-
-  onSubmit(): void {
-    this.hospitalForm.markAllAsTouched();
-
-    if (this.hospitalForm.invalid) {
-      this.showErrorSummary = true;
-      return;
-    }
-
-    this.showErrorSummary = false;
-    const formData = { ...this.hospitalForm.value };
-
-    if (!formData.password) delete formData.password;
-
-    if (this.editId) {
-      this.hospitalService.update(this.editId, formData as any).subscribe({
-        next: () => {
-          this.toastService.show('Hospital Updated Successfully!', 'success');
-          this.resetForm();
-        },
-        error: (err) => {
-          console.error('Error updating hospital:', err);
-          const errorMessage = err.error?.message || 'Failed to update hospital';
-          this.toastService.show(errorMessage, 'error');
-          this.showErrorSummary = true;
-        },
-      });
-    } else {
-      this.hospitalService.register(formData as any).subscribe({
-        next: () => {
-          this.toastService.show('Hospital Onboarded Successfully!', 'success');
-          this.resetForm();
-        },
-        error: (err) => {
-          console.error('Error registering hospital:', err);
-          const errorMessage = err.error?.message || 'Failed to register hospital';
-          this.toastService.show(errorMessage, 'error');
-          this.showErrorSummary = true;
-        },
-      });
-    }
-  }
-
+}
   resetForm(): void {
-    this.hospitalForm.reset({
-      plan: 'basic',
-      status: 'pending',
-      openingTime: '09:00',
-      closingTime: '17:00',
-      workingDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-      is24Hours: false,
-      holidays: [],
-    });
-    this.editId = null;
-    this.hospitalNotFound = false;
+  this.hospitalForm.reset({
+    plan: 'basic',
+    status: 'pending',
+    openingTime: '09:00',
+    closingTime: '17:00',
+    workingDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+    is24Hours: false,
+    holidays: [],
+    whatsappPhoneNumberId: '', 
+  });
+  this.editId = null;
+  this.hospitalNotFound = false;
 
-    // Reset password validator back to required for new registrations
-    this.hospitalForm.get('password')?.setValidators([Validators.required, Validators.minLength(8)]);
-    this.hospitalForm.get('password')?.updateValueAndValidity();
-   
-    this.is24Hours = false;
-    this.focusHospitalName();
-  }
+  this.hospitalForm.get('password')?.setValidators([Validators.required, Validators.minLength(8)]);
+  this.hospitalForm.get('password')?.updateValueAndValidity();
 
+  this.is24Hours = false;
+  this.focusHospitalName();
+}
   getFormErrors(): string[] {
     const errors: string[] = [];
     const controls = this.hospitalForm.controls;

@@ -15,6 +15,7 @@ export interface Hospital {
   user?: User;
   adminEmail?: string;
   adminPhone?: string;
+  whatsappPhoneNumberId?:string
 
  
   openingTime?: string;   
