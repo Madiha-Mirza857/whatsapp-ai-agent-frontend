@@ -75,7 +75,7 @@
                 <th>Hospital Name</th>
                 <th>Admin Name</th>
                 <th>Admin Email</th>
-                
+
                 <th>Phone</th>
                 <th>Plan</th>
                 <th>Hours</th>
@@ -149,15 +149,27 @@
                       }
                     </span>
                   </td>
-                                    <!-- ✅ NEW: WhatsApp wiring status -->
+                  <!-- ✅ NEW: WhatsApp wiring status -->
+                  <!-- WhatsApp wiring status -->
                   <td class="text-center">
                     @if (h.whatsappPhoneNumberId) {
-                      <span class="badge badge-active" title="{{ h.whatsappPhoneNumberId }}">
-                        <i class="fa-solid fa-check" aria-hidden="true"></i> Configured
+                      <span
+                        class="badge badge-active"
+                        title="{{ h.whatsappPhoneNumberId }}"
+                      >
+                        <i
+                          class="fa-solid fa-check-circle"
+                          aria-hidden="true"
+                        ></i>
+                        Configured
                       </span>
                     } @else {
                       <span class="badge badge-pending">
-                        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Not set
+                        <i
+                          class="fa-solid fa-exclamation-circle"
+                          aria-hidden="true"
+                        ></i>
+                        Not set
                       </span>
                     }
                   </td>

@@ -33,20 +33,18 @@
 
     <!-- Main Form -->
     <form [formGroup]="hospitalForm" (ngSubmit)="onSubmit()" class="chart-card">
-        <div class="header-row">
-      <h1 class="categories-title">
-        @if (editId) {
-          <i class="fa-solid fa-hospital-user" aria-hidden="true"></i> Update Hospital Profile
-        } @else {
-          <i class="fa-solid fa-square-plus" aria-hidden="true"></i> Register Hospital Details
-        }
-      </h1>
-      <a routerLink="/hospitalsList" class="btn-ghost" title="View Hospitals List">
-        <i class="fa-solid fa-list" aria-hidden="true"></i> Hospitals List
-      </a>
-    </div>
-
-    
+      <div class="header-row">
+        <h1 class="categories-title">
+          @if (editId) {
+            <i class="fa-solid fa-hospital-user" aria-hidden="true"></i> Update Hospital
+          } @else {
+            <i class="fa-solid fa-square-plus" aria-hidden="true"></i> Register Hospital
+          }
+        </h1>
+        <a routerLink="/admin/hospitalsList" class="btn-ghost" title="View Hospitals List">
+          <i class="fa-solid fa-list" aria-hidden="true"></i> List
+        </a>
+      </div>
 
       <div class="field-grid">
 
@@ -74,7 +72,7 @@
         <!-- Contact Phone -->
         <div class="field span-3">
           <label class="field-label">
-            <i class="fa-solid fa-phone" aria-hidden="true"></i> Whatsapp Phone
+            <i class="fa-solid fa-phone" aria-hidden="true"></i> WhatsApp Phone
           </label>
           <div class="input-shell">
             <i class="fa-solid fa-phone field-icon" aria-hidden="true"></i>
@@ -88,25 +86,23 @@
           </div>
         </div>
 
-
-      @if (editId) {
-       
- <div class="field span-3">
-          <label class="field-label">
-            <i class="fa-solid fa-phone" aria-hidden="true"></i> WhatsApp Phone id
-          </label>
-          <div class="input-shell">
-            <i class="fa-solid fa-phone field-icon" aria-hidden="true"></i>
-            <input
-              type="text"
+        @if (editId) {
+          <div class="field span-3">
+            <label class="field-label">
+              <i class="fa-solid fa-phone" aria-hidden="true"></i> WhatsApp ID
+            </label>
+            <div class="input-shell">
+              <i class="fa-solid fa-phone field-icon" aria-hidden="true"></i>
+              <input
+                type="text"
                 formControlName="whatsappPhoneNumberId"
                 class="field-input"
-                placeholder="e.g. 109364xxxxxxxxx (from Meta dashboard)"
-            />
+                placeholder="e.g. 109364xxxxxxxxx"
+              />
+            </div>
           </div>
-        </div>
-  
-      }
+        }
+
         <!-- Plan -->
         <div class="field span-3">
           <label class="field-label">
@@ -140,115 +136,89 @@
         </div>
 
       </div>
-      <!-- Section 3: Opening Hours -->
-<div class="pulse-divider" aria-hidden="true">
-  <svg viewBox="0 0 600 40" preserveAspectRatio="none">
-    <path class="pulse-path" d="M0,20 L240,20 L262,4 L280,36 L298,20 L316,28 L332,20 L600,20"
-          fill="none" stroke-width="2"/>
-  </svg>
-</div>
 
-<div class="section-head">
-  <div class="section-copy">
-    <span class="section-title"><i class="fa-solid fa-clock" aria-hidden="true"></i> Opening Hours</span>
-    <span class="section-subtitle">Hospital operating days and timings</span>
-  </div>
-</div>
-
-<div class="field-grid">
-  <!-- 24/7 Toggle -->
-  <div class="field span-3">
-    <label class="field-label">
-      <i class="fa-solid fa-clock" aria-hidden="true"></i> 24/7 Hospital
-    </label>
-    <div class="toggle-wrapper">
-      <label class="toggle-switch">
-        <input type="checkbox" (change)="toggle24Hours($event)" [checked]="is24Hours">
-        <span class="toggle-slider"></span>
-      </label>
-      <span class="toggle-label">{{ is24Hours ? 'Yes, 24/7' : 'No, specific hours' }}</span>
-    </div>
-  </div>
-
-  <!-- Opening Time -->
-  <div class="field span-3" [class.disabled]="is24Hours">
-    <label class="field-label">
-      <i class="fa-solid fa-sun" aria-hidden="true"></i> Opening Time
-    </label>
-    <div class="input-shell">
-      <i class="fa-solid fa-sun field-icon" aria-hidden="true"></i>
-      <input
-        type="time"
-        formControlName="openingTime"
-        class="field-input"
-        [disabled]="is24Hours"
-        step="60"
-      />
-    </div>
-  </div>
-
-  <!-- Closing Time -->
-  <div class="field span-3" [class.disabled]="is24Hours">
-    <label class="field-label">
-      <i class="fa-solid fa-moon" aria-hidden="true"></i> Closing Time
-    </label>
-    <div class="input-shell">
-      <i class="fa-solid fa-moon field-icon" aria-hidden="true"></i>
-      <input
-        type="time"
-        formControlName="closingTime"
-        class="field-input"
-        [disabled]="is24Hours"
-        step="60"
-      />
-    </div>
-  </div>
-<!-- Working Days - Checkboxes (No external library needed) -->
-<div class="field span-3">
-  <label class="field-label">
-    <i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Working Days
-  </label>
-  <div class="days-checkbox-group">
-    @for (day of daysOfWeek; track day) {
-      <label class="day-checkbox">
-        <input
-          type="checkbox"
-          [value]="day"
-          (change)="onDayChange($event)"
-          [checked]="isDaySelected(day)"
-        />
-        <span class="day-label">{{ day.substring(0, 3) }}</span>
-      </label>
-    }
-  </div>
-  <span class="field-hint">Select the days your hospital operates</span>
-</div>
-</div>
-
-      <!-- Pulse divider -->
-      <div class="pulse-divider" aria-hidden="true">
-        <svg viewBox="0 0 600 40" preserveAspectRatio="none">
-          <path class="pulse-path" d="M0,20 L240,20 L262,4 L280,36 L298,20 L316,28 L332,20 L600,20"
-                fill="none" stroke-width="2"/>
-        </svg>
+      <!-- Section 2: Opening Hours -->
+      <div class="section-head compact-head">
+        <span class="section-title"><i class="fa-solid fa-clock" aria-hidden="true"></i> Opening Hours</span>
       </div>
 
-      <!-- Section 2: Admin Credentials -->
-      <div class="section-head">
-       
-      
-        <div class="section-copy">
-          <span class="section-title">Admin Account &amp; Credentials</span>
-          <span class="section-subtitle">Primary administrator sign-in</span>
+      <div class="field-grid compact-grid">
+        <!-- 24/7 Toggle -->
+        <div class="field span-3">
+          <label class="field-label">24/7</label>
+          <div class="toggle-wrapper compact-toggle">
+            <label class="toggle-switch toggle-sm">
+              <input type="checkbox" (change)="toggle24Hours($event)" [checked]="is24Hours">
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label-sm">{{ is24Hours ? 'Yes' : 'No' }}</span>
+          </div>
         </div>
+
+        <!-- Opening Time -->
+        <div class="field span-3" [class.disabled]="is24Hours">
+          <label class="field-label">
+            <i class="fa-solid fa-sun" aria-hidden="true"></i> Opens
+          </label>
+          <div class="input-shell input-sm">
+            <input
+              type="time"
+              formControlName="openingTime"
+              class="field-input"
+              [disabled]="is24Hours"
+              step="60"
+            />
+          </div>
+        </div>
+
+        <!-- Closing Time -->
+        <div class="field span-3" [class.disabled]="is24Hours">
+          <label class="field-label">
+            <i class="fa-solid fa-moon" aria-hidden="true"></i> Closes
+          </label>
+          <div class="input-shell input-sm">
+            <input
+              type="time"
+              formControlName="closingTime"
+              class="field-input"
+              [disabled]="is24Hours"
+              step="60"
+            />
+          </div>
+        </div>
+
+        <!-- Working Days -->
+        <div class="field span-3">
+          <label class="field-label">
+            <i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Days
+          </label>
+          <div class="days-checkbox-group compact-days">
+            @for (day of daysOfWeek; track day) {
+              <label class="day-checkbox day-sm">
+                <input
+                  type="checkbox"
+                  [value]="day"
+                  (change)="onDayChange($event)"
+                  [checked]="isDaySelected(day)"
+                />
+                <span class="day-label">{{ day.substring(0, 3) }}</span>
+              </label>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Admin Credentials -->
+      <div class="section-head compact-head">
+        <span class="section-title"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> Admin</span>
       </div>
 
       <div class="field-grid">
 
         <!-- Admin Name -->
-        <div class="field span-4">
+        <div class="field span-3">
           <label class="field-label">
-            <i class="fa-solid fa-user" aria-hidden="true"></i> Admin Name
+            <i class="fa-solid fa-user" aria-hidden="true"></i> Name
             @if (hospitalForm.get('adminName')?.invalid && hospitalForm.get('adminName')?.touched) {
               <span class="required-blip" aria-label="required, has an error"></span>
             }
@@ -265,55 +235,80 @@
           </div>
         </div>
 
+     
         <!-- Admin Email -->
-        <div class="field span-4">
-          <label class="field-label">
-            <i class="fa-solid fa-envelope" aria-hidden="true"></i> Admin Email
-            @if (hospitalForm.get('adminEmail')?.invalid && hospitalForm.get('adminEmail')?.touched) {
-              <span class="required-blip" aria-label="required, has an error"></span>
-            }
-          </label>
-          <div class="input-shell">
-            <i class="fa-solid fa-envelope field-icon" aria-hidden="true"></i>
-            <input
-              type="email"
-              tabindex="8"
-              formControlName="adminEmail"
-              class="field-input"
-              placeholder="admin@hospital.com"
-            />
-          </div>
-        </div>
-
-        <!-- Admin Phone -->
-        <div class="field span-4">
-          <label class="field-label">
-            <i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> Admin Phone
-            @if (hospitalForm.get('adminPhone')?.invalid && hospitalForm.get('adminPhone')?.touched) {
-              <span class="required-blip" aria-label="required, has an error"></span>
-            }
-          </label>
-          <div class="input-shell">
-            <i class="fa-solid fa-mobile-screen field-icon" aria-hidden="true"></i>
-            <input
-              type="text"
-              tabindex="9"
-              formControlName="adminPhone"
-              class="field-input"
-              placeholder="+923007654321"
-            />
-          </div>
-        </div>
-
-        <!-- Password -->
-        <div class="field span-5">
-         <label class="field-label">
-    <i class="fa-solid fa-key"></i> Password
-
-    @if (isFieldInvalid('password')) {
-        <span class="required-blip"></span>
+<div class="field span-3">
+  <label class="field-label">
+    <i class="fa-solid fa-envelope" aria-hidden="true"></i> Email
+    @if (isFieldInvalid('adminEmail')) {
+      <span class="required-blip" aria-label="required, has an error"></span>
     }
-</label>
+  </label>
+  <div class="input-shell" [class.has-error]="hospitalForm.get('adminEmail')?.errors?.['taken']">
+    <i class="fa-solid fa-envelope field-icon" aria-hidden="true"></i>
+    <input
+      type="email"
+      tabindex="8"
+      formControlName="adminEmail"
+      class="field-input"
+      placeholder="admin@hospital.com"
+      (input)="onEmailInput($event)"
+    />
+    @if (isEmailChecking) {
+      <span class="field-loading"><i class="fa-solid fa-spinner fa-spin"></i></span>
+    }
+  </div>
+  @if (emailCheckMessage) {
+    <span class="field-availability" [class.available]="emailAvailable" [class.taken]="!emailAvailable">
+      <i class="fa-solid" [class.fa-check-circle]="emailAvailable"></i>
+      {{ emailCheckMessage }}
+    </span>
+  }
+  @if (isFieldInvalid('adminEmail')) {
+    <span class="field-error">{{ getFieldError('adminEmail') }}</span>
+  }
+</div>
+
+<!-- Admin Phone -->
+<div class="field span-3">
+  <label class="field-label">
+    <i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> Phone
+    @if (isFieldInvalid('adminPhone')) {
+      <span class="required-blip" aria-label="required, has an error"></span>
+    }
+  </label>
+  <div class="input-shell" [class.has-error]="hospitalForm.get('adminPhone')?.errors?.['taken']">
+    <i class="fa-solid fa-mobile-screen field-icon" aria-hidden="true"></i>
+    <input
+      type="text"
+      tabindex="9"
+      formControlName="adminPhone"
+      class="field-input"
+      placeholder="+923007654321"
+      (input)="onPhoneInput($event)"
+    />
+    @if (isPhoneChecking) {
+      <span class="field-loading"><i class="fa-solid fa-spinner fa-spin"></i></span>
+    }
+  </div>
+  @if (phoneCheckMessage) {
+    <span class="field-availability" [class.available]="phoneAvailable" [class.taken]="!phoneAvailable">
+      <i class="fa-solid" [class.fa-check-circle]="phoneAvailable"></i>
+      <!-- {{ phoneCheckMessage }} -->
+    </span>
+  }
+  @if (isFieldInvalid('adminPhone')) {
+    <span class="field-error">{{ getFieldError('adminPhone') }}</span>
+  }
+</div>
+        <!-- Password -->
+        <div class="field span-3">
+          <label class="field-label">
+            <i class="fa-solid fa-key"></i> Password
+            @if (isFieldInvalid('password')) {
+              <span class="required-blip"></span>
+            }
+          </label>
           <div class="input-shell">
             <i class="fa-solid fa-key field-icon" aria-hidden="true"></i>
             <input
@@ -321,12 +316,9 @@
               tabindex="10"
               formControlName="password"
               class="field-input"
-              [placeholder]="editId ? 'Leave blank to keep unchanged' : 'Min 8 characters'"
+              [placeholder]="editId ? 'Keep unchanged' : 'Min 8 chars'"
             />
           </div>
-          @if (!editId) {
-            <span class="field-hint">Min 8 characters</span>
-          }
         </div>
 
       </div>
@@ -334,11 +326,11 @@
       <!-- Save Button -->
       <div class="chart-card-footer">
         <span class="footer-note">
-          <i class="fa-solid fa-shield-heart" aria-hidden="true"></i> Records are encrypted at rest
+          <i class="fa-solid fa-shield-heart" aria-hidden="true"></i> Encrypted
         </span>
         <button type="submit" class="btn-submit">
           <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
-          {{ editId ? 'Update Hospital' : 'Register Hospital' }}
+          {{ editId ? 'Update' : 'Register' }}
         </button>
       </div>
 

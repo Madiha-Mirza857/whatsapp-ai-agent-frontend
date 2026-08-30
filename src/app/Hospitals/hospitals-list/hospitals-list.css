@@ -1,0 +1,80 @@
+/* ===== WHATSAPP BADGE STYLES ===== */
+
+/* Active/Configured badge - Green */
+.badge-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #E8F5E9;
+  color: #2E7D32;
+  border: 1px solid #A5D6A7;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.badge-active i {
+  color: #2E7D32;
+  font-size: 0.55rem;
+}
+
+/* Pending/Not set badge - Yellow/Orange */
+.badge-pending {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #FFF8E1;
+  color: #F57F17;
+  border: 1px solid #FFE082;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.badge-pending i {
+  color: #F57F17;
+  font-size: 0.55rem;
+}
+
+/* Optional: Hover effects */
+.badge-active:hover {
+  background: #C8E6C9;
+  border-color: #81C784;
+}
+
+.badge-pending:hover {
+  background: #FFECB3;
+  border-color: #FFD54F;
+}
+
+/* Tooltip styling for WhatsApp ID */
+.badge-active[title] {
+  cursor: help;
+  position: relative;
+}
+
+.badge-active[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--teal-900);
+  color: #fff;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.6rem;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}

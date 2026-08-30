@@ -902,3 +902,73 @@
   .app-main { margin-left: 76px; } 
    .app-main.no-sidebar { margin-left: 0; }
 }
+
+
+
+
+
+
+
+
+
+
+
+/* Field availability messages */
+.field-availability {
+  font-size: 0.72rem;
+  margin-top: 0.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+
+.field-availability.available {
+  color: #2e7d32;
+  background: #e8f5e9;
+}
+
+.field-availability.taken {
+  color: #c62828;
+  background: #ffebee;
+}
+
+.field-availability i {
+  font-size: 0.7rem;
+}
+
+.field-loading {
+  position: absolute;
+  right: 0.75rem;
+  color: var(--teal-500);
+}
+
+.field-loading i {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error state for taken fields */
+.input-shell.has-error {
+  border-color: #c62828 !important;
+  background: #ffebee !important;
+}
+
+.input-shell.has-error:focus-within {
+  border-color: #c62828 !important;
+  box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.15) !important;
+}
+
+.field-error {
+  font-size: 0.68rem;
+  color: #c62828;
+  margin-top: 0.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}

@@ -71,97 +71,97 @@
             <span class="field-error">{{ getFieldError('name') }}</span>
           }
         </div>
-   <!-- Specialization - Searchable Dropdown -->
-<div class="field span-6" style="position: relative;">
-  <label class="field-label">
-    <i class="fa-solid fa-stethoscope" aria-hidden="true"></i> Specialization
-    @if (isFieldInvalid('specialization')) {
-      <span class="required-blip" aria-label="has an error"></span>
-    }
-  </label>
-  
-  <!-- Dropdown Trigger -->
-  <div class="searchable-dropdown" (click)="toggleDropdown()" style="position: relative;">
-    <div class="input-shell" style="cursor: pointer;">
-      <i class="fa-solid fa-stethoscope field-icon" aria-hidden="true"></i>
-      <input
-        type="text"
-        class="field-input"
-        placeholder="Search or select specialization..."
-        [value]="selectedSpecialization || ''"
-        readonly
-        style="cursor: pointer;"
-      />
-      <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
-    </div>
-  </div>
 
-  <!-- Dropdown Menu -->
-  @if (isDropdownOpen) {
-    <div class="dropdown-menu" (click)="$event.stopPropagation()">
-      <div class="dropdown-search">
-        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-        <input
-          #searchInput
-          type="text"
-          class="dropdown-search-input"
-          placeholder="Type to filter..."
-          (input)="onSearchInput($event)"
-          (keydown)="onDropdownKeydown($event)"
-        />
-      </div>
-      <div class="dropdown-list" #dropdownList>
-        @if (filteredSpecializations.length > 0) {
-          @for (spec of filteredSpecializations; track spec; let i = $index) {
-            <div 
-              class="dropdown-item"
-              [class.selected]="spec === selectedSpecialization"
-              [class.highlighted]="i === highlightedIndex"
-              (click)="selectSpecialization(spec)"
-              (mouseenter)="highlightedIndex = i"
-            >
-              <span>{{ spec }}</span>
-              @if (spec === selectedSpecialization) {
-                <i class="fa-solid fa-check"></i>
-              }
+        <!-- Specialization - Searchable Dropdown -->
+        <div class="field span-6" style="position: relative;">
+          <label class="field-label">
+            <i class="fa-solid fa-stethoscope" aria-hidden="true"></i> Specialization
+            @if (isFieldInvalid('specialization')) {
+              <span class="required-blip" aria-label="has an error"></span>
+            }
+          </label>
+          
+          <div class="searchable-dropdown" (click)="toggleDropdown()" style="position: relative;">
+            <div class="input-shell" style="cursor: pointer;">
+              <i class="fa-solid fa-stethoscope field-icon" aria-hidden="true"></i>
+              <input
+                type="text"
+                class="field-input"
+                placeholder="Search or select specialization..."
+                [value]="selectedSpecialization || ''"
+                readonly
+                style="cursor: pointer;"
+              />
+              <i class="fa-solid fa-chevron-down dropdown-arrow" aria-hidden="true"></i>
+            </div>
+          </div>
+
+          @if (isDropdownOpen) {
+            <div class="dropdown-menu" (click)="$event.stopPropagation()">
+              <div class="dropdown-search">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                <input
+                  #searchInput
+                  type="text"
+                  class="dropdown-search-input"
+                  placeholder="Type to filter..."
+                  (input)="onSearchInput($event)"
+                  (keydown)="onDropdownKeydown($event)"
+                />
+              </div>
+              <div class="dropdown-list" #dropdownList>
+                @if (filteredSpecializations.length > 0) {
+                  @for (spec of filteredSpecializations; track spec; let i = $index) {
+                    <div 
+                      class="dropdown-item"
+                      [class.selected]="spec === selectedSpecialization"
+                      [class.highlighted]="i === highlightedIndex"
+                      (click)="selectSpecialization(spec)"
+                      (mouseenter)="highlightedIndex = i"
+                    >
+                      <span>{{ spec }}</span>
+                      @if (spec === selectedSpecialization) {
+                        <i class="fa-solid fa-check"></i>
+                      }
+                    </div>
+                  }
+                } @else {
+                  <div class="dropdown-empty">
+                    No specializations found. Select "Other" to add custom.
+                  </div>
+                }
+              </div>
             </div>
           }
-        } @else {
-          <div class="dropdown-empty">
-            No specializations found. Select "Other" to add custom.
+
+          @if (isFieldInvalid('specialization')) {
+            <span class="field-error">{{ getFieldError('specialization') }}</span>
+          }
+        </div>
+
+        <!-- Custom Specialization -->
+        @if (showCustomSpecialization) {
+          <div class="field span-6">
+            <label class="field-label">
+              <i class="fa-solid fa-pen" aria-hidden="true"></i> Enter Specialization
+              <span class="required-blip" aria-label="required"></span>
+            </label>
+            <div class="input-shell">
+              <i class="fa-solid fa-pen field-icon" aria-hidden="true"></i>
+              <input
+                type="text"
+                formControlName="customSpecialization"
+                class="field-input"
+                placeholder="e.g. Interventional Cardiology"
+              />
+            </div>
+            @if (doctorForm.get('customSpecialization')?.invalid && doctorForm.get('customSpecialization')?.touched) {
+              <span class="field-error">Please enter the specialization name</span>
+            }
+            <span class="field-hint">Enter a custom specialization name</span>
           </div>
         }
-      </div>
-    </div>
-  }
 
-  @if (isFieldInvalid('specialization')) {
-    <span class="field-error">{{ getFieldError('specialization') }}</span>
-  }
-</div>
-
-<!-- ✅ Custom Specialization (shown when "Other" is selected) -->
-@if (showCustomSpecialization) {
-  <div class="field span-6">
-    <label class="field-label">
-      <i class="fa-solid fa-pen" aria-hidden="true"></i> Enter Specialization
-      <span class="required-blip" aria-label="required"></span>
-    </label>
-    <div class="input-shell">
-      <i class="fa-solid fa-pen field-icon" aria-hidden="true"></i>
-      <input
-        type="text"
-        formControlName="customSpecialization"
-        class="field-input"
-        placeholder="e.g. Interventional Cardiology"
-      />
-    </div>
-    @if (doctorForm.get('customSpecialization')?.invalid && doctorForm.get('customSpecialization')?.touched) {
-      <span class="field-error">Please enter the specialization name</span>
-    }
-    <span class="field-hint">Enter a custom specialization name</span>
-  </div>
-}
         <!-- Qualification -->
         <div class="field span-6">
           <label class="field-label">
@@ -259,53 +259,74 @@
               <span class="required-blip" aria-label="has an error"></span>
             }
           </label>
-          <div class="input-shell">
+          <div class="input-shell" [class.has-error]="doctorForm.get('email')?.errors?.['taken']">
             <i class="fa-solid fa-envelope field-icon" aria-hidden="true"></i>
             <input
               type="email"
               formControlName="email"
               class="field-input"
               placeholder="doctor@hospital.com"
+              (input)="onEmailInput($event)"
             />
+            @if (isEmailChecking) {
+              <span class="field-loading"><i class="fa-solid fa-spinner fa-spin"></i></span>
+            }
           </div>
+          @if (emailCheckMessage) {
+            <span class="field-availability" [class.available]="emailAvailable" [class.taken]="!emailAvailable">
+              <i class="fa-solid" [class.fa-check-circle]="emailAvailable"></i>
+              <!-- {{ emailCheckMessage }} -->
+            </span>
+          }
           @if (isFieldInvalid('email')) {
             <span class="field-error">{{ getFieldError('email') }}</span>
           }
         </div>
 
         <!-- Phone -->
-        <div class="field span-6">
-          <label class="field-label">
-            <i class="fa-solid fa-phone" aria-hidden="true"></i> Phone
-            @if (isFieldInvalid('phone')) {
-              <span class="required-blip" aria-label="has an error"></span>
-            }
-          </label>
-          <div class="input-shell">
-            <i class="fa-solid fa-phone field-icon" aria-hidden="true"></i>
-            <input
-              type="text"
-              formControlName="phone"
-              class="field-input"
-              placeholder="+923001234567"
-            />
-          </div>
-          @if (isFieldInvalid('phone')) {
-            <span class="field-error">{{ getFieldError('phone') }}</span>
-          }
-        </div>
-
+       <!-- Phone -->
+<div class="field span-6">
+  <label class="field-label">
+    <i class="fa-solid fa-phone" aria-hidden="true"></i> Phone
+    @if (isFieldInvalid('phone')) {
+      <span class="required-blip" aria-label="has an error"></span>
+    }
+  </label>
+  <div class="input-shell" [class.has-error]="doctorForm.get('phone')?.errors?.['taken']">
+    <i class="fa-solid fa-phone field-icon" aria-hidden="true"></i>
+    <input
+      type="text"
+      formControlName="phone"
+      class="field-input"
+      placeholder="+923001234567"
+      (input)="onPhoneInput($event)"
+    />
+    @if (isPhoneChecking) {
+      <span class="field-loading"><i class="fa-solid fa-spinner fa-spin"></i></span>
+    }
+  </div>
+  @if (phoneCheckMessage) {
+    <span class="field-availability" [class.available]="phoneAvailable" [class.taken]="!phoneAvailable">
+      <i class="fa-solid" [class.fa-check-circle]="phoneAvailable"></i>
+    
+    </span>
+  }
+  @if (isFieldInvalid('phone')) {
+    <span class="field-error">{{ getFieldError('phone') }}</span>
+  }
+</div>
         <!-- Password -->
         <div class="field span-6">
           <label class="field-label">
             <i class="fa-solid fa-lock" aria-hidden="true"></i> Password
-           @if (isFieldInvalid('password')) {
-    <span class="required-blip"></span>
-}
+            @if (isFieldInvalid('password')) {
+              <span class="required-blip"></span>
+            }
           </label>
           <div class="input-shell">
             <i class="fa-solid fa-lock field-icon" aria-hidden="true"></i>
             <input
+              #passwordInput
               type="password"
               formControlName="password"
               class="field-input"
@@ -349,3 +370,5 @@
       </div>
 
     </form>
+  </div>
+</div>
