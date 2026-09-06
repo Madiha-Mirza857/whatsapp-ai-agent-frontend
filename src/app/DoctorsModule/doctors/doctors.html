@@ -272,12 +272,12 @@
               <span class="field-loading"><i class="fa-solid fa-spinner fa-spin"></i></span>
             }
           </div>
-          @if (emailCheckMessage) {
-            <span class="field-availability" [class.available]="emailAvailable" [class.taken]="!emailAvailable">
-              <i class="fa-solid" [class.fa-check-circle]="emailAvailable"></i>
-              <!-- {{ emailCheckMessage }} -->
-            </span>
-          }
+      @if (emailCheckMessage) {
+  <span class="field-availability" [class.available]="emailAvailable" [class.taken]="!emailAvailable">
+    <i class="fa-solid" [class.fa-check-circle]="emailAvailable" [class.fa-circle-xmark]="!emailAvailable"></i>
+    {{ emailCheckMessage }}
+  </span>
+}
           @if (isFieldInvalid('email')) {
             <span class="field-error">{{ getFieldError('email') }}</span>
           }
@@ -305,12 +305,12 @@
       <span class="field-loading"><i class="fa-solid fa-spinner fa-spin"></i></span>
     }
   </div>
-  @if (phoneCheckMessage) {
-    <span class="field-availability" [class.available]="phoneAvailable" [class.taken]="!phoneAvailable">
-      <i class="fa-solid" [class.fa-check-circle]="phoneAvailable"></i>
-    
-    </span>
-  }
+@if (phoneCheckMessage) {
+  <span class="field-availability" [class.available]="phoneAvailable" [class.taken]="!phoneAvailable">
+    <i class="fa-solid" [class.fa-check-circle]="phoneAvailable" [class.fa-circle-xmark]="!phoneAvailable"></i>
+    {{ phoneCheckMessage }}
+  </span>
+}
   @if (isFieldInvalid('phone')) {
     <span class="field-error">{{ getFieldError('phone') }}</span>
   }

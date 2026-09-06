@@ -394,7 +394,6 @@
   color: #fff;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
 
 /* ============ Design tokens (mirrors hospital-form) ============ */
 .list-wrapper {
@@ -972,3 +971,5 @@
   align-items: center;
   gap: 0.3rem;
 }
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

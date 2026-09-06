@@ -19,7 +19,7 @@ import { AuthService } from '../../auth/auth-service';
 @Component({
   selector: 'app-doctor-slot',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, FormsModule, TableNavigationDirective],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, TableNavigationDirective],
   templateUrl: './doctor-slot.html',
   styleUrl: './doctor-slot.css',
 })

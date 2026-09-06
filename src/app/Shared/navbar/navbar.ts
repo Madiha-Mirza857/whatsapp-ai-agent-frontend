@@ -37,6 +37,8 @@ export class Navbar implements OnInit, OnDestroy {
     { label: 'Doctor Slots', icon: 'fa-clock', route: '/admin/doctor-slots', roles: ['HOSPITAL_ADMIN'] },
     { label: 'My Slots', icon: 'fa-clock', route: '/doctor/slots', roles: ['DOCTOR'] },
     { label: 'Appointments', icon: 'fa-calendar-check', route: '/appointment', roles: ['DOCTOR', 'HOSPITAL_ADMIN'] },
+      { label: 'Patients', icon: 'fa-users', route: '/admin/patients-list', roles: ['HOSPITAL_ADMIN'] },
+    { label: 'Add Patient', icon: 'fa-user-plus', route: '/admin/patient-form', roles: ['HOSPITAL_ADMIN'] },
   ];
 
   constructor(

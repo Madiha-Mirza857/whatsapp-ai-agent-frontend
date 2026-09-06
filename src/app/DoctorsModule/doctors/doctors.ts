@@ -34,7 +34,7 @@ export class Doctors implements OnInit, AfterViewInit, OnDestroy {
   filteredDoctors: Doctor[] = [];
   searchTerm: string = '';
 
-  // ✅ Searchable dropdown properties
+  // Searchable dropdown properties
   isDropdownOpen = false;
   specializationSearch: string = '';
   filteredSpecializations: string[] = [];
@@ -43,7 +43,7 @@ export class Doctors implements OnInit, AfterViewInit, OnDestroy {
   searchInputValue: string = '';
   showCustomSpecialization = false;
 
-  // ✅ Email/Phone availability check
+  // Email/Phone availability check
   isEmailChecking = false;
   isPhoneChecking = false;
   emailCheckMessage = '';
@@ -51,12 +51,12 @@ export class Doctors implements OnInit, AfterViewInit, OnDestroy {
   emailAvailable = false;
   phoneAvailable = false;
   
-  // ✅ Debounce subjects
+  // Debounce subjects
   private emailSubject = new Subject<string>();
   private phoneSubject = new Subject<string>();
   private destroy$ = new Subject<void>();
 
-  // ✅ All specializations
+  // All specializations
   allSpecializations = [
     'Cardiology',
     'Neurology',
@@ -85,7 +85,7 @@ export class Doctors implements OnInit, AfterViewInit, OnDestroy {
     'Other'
   ];
 
-  // ✅ Custom validator for unique email/phone
+  // Custom validator for unique email/phone
   uniqueValidator = (control: AbstractControl): ValidationErrors | null => {
     if (control.value && control.errors) {
       if (control.errors['taken']) {
@@ -142,7 +142,7 @@ export class Doctors implements OnInit, AfterViewInit, OnDestroy {
     this.editId = new URLSearchParams(window.location.search).get('id');
     this.filteredSpecializations = [...this.allSpecializations];
 
-    // ✅ Watch for specialization changes
+    // Watch for specialization changes
     this.doctorForm.get('specialization')?.valueChanges.subscribe((value) => {
       this.showCustomSpecialization = value === 'Other';
       if (!this.showCustomSpecialization) {
@@ -150,7 +150,7 @@ export class Doctors implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    // ✅ Setup debounced email validation
+    // Setup debounced email validation
     this.emailSubject.pipe(
       debounceTime(500),
       distinctUntilChanged(),
@@ -185,7 +185,7 @@ export class Doctors implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    // ✅ Setup debounced phone validation
+    // Setup debounced phone validation
     this.phoneSubject.pipe(
       debounceTime(500),
       distinctUntilChanged(),
@@ -260,13 +260,13 @@ export class Doctors implements OnInit, AfterViewInit, OnDestroy {
     this.isPhoneChecking = false;
   }
 
-  // ✅ Trigger email check on input
+  // Trigger email check on input
   onEmailInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.emailSubject.next(input.value);
   }
 
-  // ✅ Trigger phone check on input
+  // Trigger phone check on input
   onPhoneInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.phoneSubject.next(input.value);
@@ -276,7 +276,7 @@ export class Doctors implements OnInit, AfterViewInit, OnDestroy {
     setTimeout(() => this.nameInput?.nativeElement?.focus(), 0);
   }
 
-  // ✅ Dropdown methods
+  // Dropdown methods
   onSearchInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.searchInputValue = input.value;
@@ -353,7 +353,7 @@ export class Doctors implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // ✅ Load doctors
+  // Load doctors
   loadDoctors(): void {
     this.isLoading = true;
     this.doctorService.getAll().subscribe({
@@ -398,7 +398,7 @@ searchDoctors(): void {
       this.selectedSpecialization = specValue;
       this.specializationSearch = res.specialization;
 
-      // ✅ Fix: Use res.user?.phoneNumber or res.phone
+      // Fix: Use res.user?.phoneNumber or res.phone
       const phoneValue = res.user?.phoneNumber || res.phone || '';
 
       this.doctorForm.patchValue({
@@ -447,7 +447,7 @@ searchDoctors(): void {
   getFieldError(fieldName: string): string {
     const field = this.doctorForm.get(fieldName);
     if (field?.errors) {
-      // ✅ Handle taken error first
+      // Handle taken error first
       if (field.errors['taken']) {
         if (fieldName === 'email') {
           return '❌ This email is already registered. Please use a different email.';
@@ -490,7 +490,7 @@ searchDoctors(): void {
     if (controls.experienceYears.invalid) errors.push('Valid Experience Years is required (0-60)');
     if (controls.consultationFee.invalid) errors.push('Valid Consultation Fee is required');
     
-    // ✅ Email validation with duplicate check
+    // Email validation with duplicate check
     if (controls.email.invalid) {
       if (controls.email.errors?.['taken']) {
         errors.push('This email is already registered. Please use a different email.');
@@ -499,7 +499,7 @@ searchDoctors(): void {
       }
     }
     
-    // ✅ Phone validation with duplicate check
+    // Phone validation with duplicate check
     if (controls.phone.invalid) {
       if (controls.phone.errors?.['taken']) {
         errors.push('This phone number is already registered. Please use a different number.');
@@ -520,7 +520,7 @@ searchDoctors(): void {
   onSubmit(): void {
     this.doctorForm.markAllAsTouched();
 
-    // ✅ Check for duplicate email/phone before submitting
+    // Check for duplicate email/phone before submitting
     if (this.doctorForm.get('email')?.errors?.['taken']) {
       this.showErrorSummary = true;
       this.toastService.show('❌ This email is already registered. Please use a different email.', 'error');
@@ -576,7 +576,7 @@ searchDoctors(): void {
     if (this.editId) {
       this.doctorService.update(this.editId, payload).subscribe({
         next: () => {
-          this.toastService.show('✅ Doctor Updated Successfully!', 'success');
+          this.toastService.show('Doctor Updated Successfully!', 'success');
           this.resetForm();
           this.loadDoctors();
           this.isLoading = false;
@@ -592,7 +592,7 @@ searchDoctors(): void {
     } else {
       this.doctorService.create(payload).subscribe({
         next: () => {
-          this.toastService.show('✅ Doctor Onboarded Successfully!', 'success');
+          this.toastService.show('Doctor Onboarded Successfully!', 'success');
           this.resetForm();
           this.loadDoctors();
           this.isLoading = false;
@@ -635,7 +635,7 @@ searchDoctors(): void {
 
     this.doctorService.delete(id).subscribe({
       next: (res) => {
-        this.toastService.show(res.message || '✅ Doctor deleted successfully', 'success');
+        this.toastService.show(res.message || 'Doctor deleted successfully', 'success');
         this.loadDoctors();
       },
       error: (err) => {

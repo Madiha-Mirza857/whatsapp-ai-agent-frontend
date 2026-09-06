@@ -1,0 +1,451 @@
+<!-- src/app/patient/patient-form.html -->
+<div class="categories-wrapper">
+  <svg class="wrapper-pulse-bg" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,60 L220,60 L250,15 L280,105 L310,60 L340,80 L360,60 L1200,60"
+          fill="none" stroke="currentColor" stroke-width="2"/>
+  </svg>
+
+  <div class="page-shell">
+    <!-- Header -->
+    <div class="header-row">
+      <h1 class="categories-title">
+        @if (editId) {
+          <i class="fa-solid fa-user-pen" aria-hidden="true"></i> Update Patient
+        } @else {
+          <i class="fa-solid fa-user-plus" aria-hidden="true"></i> Add Patient
+        }
+      </h1>
+      <div class="header-actions">
+        <button type="button" class="btn-ghost" (click)="goBack()">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to List
+        </button>
+      </div>
+    </div>
+
+    <!-- Error Messages -->
+    @if (showErrorSummary && getFormErrors().length) {
+      <div class="status-alert status-alert--danger" role="alert">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <div>
+          <strong>Please fix the following errors</strong>
+          <ul>
+            @for (err of getFormErrors(); track err) {
+              <li>{{ err }}</li>
+            }
+          </ul>
+        </div>
+      </div>
+    }
+
+    @if (patientNotFound) {
+      <div class="status-alert status-alert--warning" role="status">
+        <i class="fa-solid fa-exclamation-triangle" aria-hidden="true"></i>
+        Patient record not found.
+      </div>
+    }
+
+    <!-- Main Form -->
+    <form [formGroup]="patientForm" (ngSubmit)="onSubmit()" class="chart-card">
+
+      <!-- Section: Basic Information -->
+      <div class="section-head">
+        <div class="section-copy">
+          <span class="section-title"><i class="fa-solid fa-user" aria-hidden="true"></i> Basic Information</span>
+          <span class="section-subtitle">Patient's personal details</span>
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <!-- Name -->
+        <div class="field span-3">
+          <label class="field-label">
+            <i class="fa-solid fa-user" aria-hidden="true"></i> Full Name
+            @if (isFieldInvalid('name')) {
+              <span class="required-blip"></span>
+            }
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-user field-icon" aria-hidden="true"></i>
+            <input
+              #nameInput
+              type="text"
+              formControlName="name"
+              class="field-input"
+              placeholder="John Doe"
+            />
+          </div>
+          @if (isFieldInvalid('name')) {
+            <span class="field-error">{{ getFieldError('name') }}</span>
+          }
+        </div>
+
+        <!-- Phone Number -->
+        <div class="field span-3">
+          <label class="field-label">
+            <i class="fa-solid fa-phone" aria-hidden="true"></i> Phone Number
+            @if (isFieldInvalid('phoneNumber')) {
+              <span class="required-blip"></span>
+            }
+          </label>
+          <div class="input-shell" [class.has-error]="patientForm.get('phoneNumber')?.errors?.['taken']">
+            <i class="fa-solid fa-phone field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              formControlName="phoneNumber"
+              class="field-input"
+              placeholder="03001234567"
+              (input)="onPhoneInput($event)"
+            />
+            @if (isPhoneChecking) {
+              <span class="field-loading"><i class="fa-solid fa-spinner fa-spin"></i></span>
+            }
+          </div>
+          @if (phoneCheckMessage) {
+            <span class="field-availability" [class.available]="phoneAvailable" [class.taken]="!phoneAvailable">
+              <i class="fa-solid" [class.fa-check-circle]="phoneAvailable"></i>
+              {{ phoneCheckMessage }}
+            </span>
+          }
+          @if (isFieldInvalid('phoneNumber')) {
+            <span class="field-error">{{ getFieldError('phoneNumber') }}</span>
+          }
+        </div>
+
+        <!-- CNIC -->
+        <div class="field span-3">
+          <label class="field-label">
+            <i class="fa-solid fa-id-card" aria-hidden="true"></i> CNIC
+          </label>
+          <div class="input-shell" [class.has-error]="patientForm.get('cnic')?.errors?.['taken']">
+            <i class="fa-solid fa-id-card field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              formControlName="cnic"
+              class="field-input"
+              placeholder="12345-1234567-1"
+              (input)="onCnicInput($event)"
+            />
+            @if (isCnicChecking) {
+              <span class="field-loading"><i class="fa-solid fa-spinner fa-spin"></i></span>
+            }
+          </div>
+          @if (cnicCheckMessage) {
+            <span class="field-availability" [class.available]="cnicAvailable" [class.taken]="!cnicAvailable">
+              <i class="fa-solid" [class.fa-check-circle]="cnicAvailable"></i>
+              {{ cnicCheckMessage }}
+            </span>
+          }
+          @if (isFieldInvalid('cnic')) {
+            <span class="field-error">{{ getFieldError('cnic') }}</span>
+          }
+        </div>
+
+        <!-- Emergency Contact -->
+        <div class="field span-3">
+          <label class="field-label">
+            <i class="fa-solid fa-phone" aria-hidden="true"></i> Emergency Contact
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-phone field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              formControlName="emergencyContact"
+              class="field-input"
+              placeholder="03001234567"
+            />
+          </div>
+          @if (isFieldInvalid('emergencyContact')) {
+            <span class="field-error">{{ getFieldError('emergencyContact') }}</span>
+          }
+        </div>
+      </div>
+
+      <!-- Section: Demographics -->
+      <div class="section-head">
+        <div class="section-copy">
+          <span class="section-title"><i class="fa-solid fa-venus-mars" aria-hidden="true"></i> Demographics</span>
+          <span class="section-subtitle">Age, gender, and blood type</span>
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <!-- Date of Birth -->
+        <div class="field span-3">
+          <label class="field-label">
+            <i class="fa-solid fa-calendar" aria-hidden="true"></i> Date of Birth
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-calendar field-icon" aria-hidden="true"></i>
+            <input
+              type="date"
+              formControlName="dateOfBirth"
+              class="field-input"
+            />
+          </div>
+        </div>
+
+        <!-- Age (Auto-calculated) -->
+        <div class="field span-3">
+          <label class="field-label">
+            <i class="fa-solid fa-clock" aria-hidden="true"></i> Age
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-clock field-icon" aria-hidden="true"></i>
+            <input
+              type="number"
+              formControlName="age"
+              class="field-input"
+              placeholder="Auto-calculated"
+              min="0"
+              max="120"
+              readonly
+              style="background: var(--mint-100); cursor: not-allowed;"
+            />
+          </div>
+          @if (isFieldInvalid('age')) {
+            <span class="field-error">{{ getFieldError('age') }}</span>
+          }
+        </div>
+
+        <!-- Gender -->
+        <div class="field span-3">
+          <label class="field-label">
+            <i class="fa-solid fa-venus-mars" aria-hidden="true"></i> Gender
+          </label>
+          <div class="input-shell" style="padding: 0 0.75rem;">
+            <i class="fa-solid fa-venus-mars field-icon" aria-hidden="true"></i>
+            <select formControlName="gender" class="field-select">
+              <option value="">Select</option>
+              @for (g of genders; track g) {
+                <option [value]="g">{{ g | titlecase }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Blood Group -->
+        <div class="field span-3">
+          <label class="field-label">
+            <i class="fa-solid fa-droplet" aria-hidden="true"></i> Blood Group
+          </label>
+          <div class="input-shell" style="padding: 0 0.75rem;">
+            <i class="fa-solid fa-droplet field-icon" aria-hidden="true"></i>
+            <select formControlName="bloodGroup" class="field-select">
+              <option value="">Select</option>
+              @for (bg of bloodGroups; track bg) {
+                <option [value]="bg">{{ bg }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Address (Full width) -->
+        <div class="field span-12">
+          <label class="field-label">
+            <i class="fa-solid fa-location-dot" aria-hidden="true"></i> Address
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-location-dot field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              formControlName="address"
+              class="field-input"
+              placeholder="House #, Street, City"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Medical History -->
+      <div class="section-head">
+        <div class="section-copy">
+          <span class="section-title"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i> Medical History</span>
+          <span class="section-subtitle">Allergies, surgeries, and chronic conditions</span>
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <!-- Allergies -->
+        <div class="field span-6">
+          <label class="field-label">
+            <i class="fa-solid fa-allergies" aria-hidden="true"></i> Allergies
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-allergies field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              formControlName="allergies"
+              class="field-input"
+              placeholder="Penicillin, Eggs"
+            />
+          </div>
+          <span class="field-hint">Comma separated</span>
+        </div>
+
+        <!-- Past Surgeries -->
+        <div class="field span-6">
+          <label class="field-label">
+            <i class="fa-solid fa-scalpel" aria-hidden="true"></i> Past Surgeries
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-scalpel field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              formControlName="pastSurgeries"
+              class="field-input"
+              placeholder="Appendectomy (2018)"
+            />
+          </div>
+          <span class="field-hint">Comma separated</span>
+        </div>
+
+        <!-- Chronic Diseases -->
+        <div class="field span-6">
+          <label class="field-label">
+            <i class="fa-solid fa-clock" aria-hidden="true"></i> Chronic Diseases
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-clock field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              formControlName="chronicDiseases"
+              class="field-input"
+              placeholder="Diabetes, Hypertension"
+            />
+          </div>
+          <span class="field-hint">Comma separated</span>
+        </div>
+
+        <!-- Family History -->
+        <div class="field span-6">
+          <label class="field-label">
+            <i class="fa-solid fa-people-group" aria-hidden="true"></i> Family History
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-people-group field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              formControlName="familyHistory"
+              class="field-input"
+              placeholder="Diabetes (Mother), Heart Disease (Father)"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Risk Factors (One Row) -->
+      <div class="section-head">
+        <div class="section-copy">
+          <span class="section-title"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Risk Factors</span>
+          <span class="section-subtitle">Quick health indicators</span>
+        </div>
+      </div>
+
+      <div class="field-grid risk-grid">
+        <div class="field span-2 risk-item">
+          <label class="field-label toggle-label">
+            <input type="checkbox" formControlName="hasDiabetes" class="risk-checkbox">
+            <span class="risk-label">Diabetes (DM)</span>
+          </label>
+        </div>
+        <div class="field span-2 risk-item">
+          <label class="field-label toggle-label">
+            <input type="checkbox" formControlName="hasHypertension" class="risk-checkbox">
+            <span class="risk-label">Hypertension (HTN)</span>
+          </label>
+        </div>
+        <div class="field span-2 risk-item">
+          <label class="field-label toggle-label">
+            <input type="checkbox" formControlName="hasHeartDisease" class="risk-checkbox">
+            <span class="risk-label">Heart Disease (IHD)</span>
+          </label>
+        </div>
+        <div class="field span-2 risk-item">
+          <label class="field-label toggle-label">
+            <input type="checkbox" formControlName="isSmoker" class="risk-checkbox">
+            <span class="risk-label">Smoker</span>
+          </label>
+        </div>
+        <div class="field span-2 risk-item">
+          <label class="field-label toggle-label">
+            <input type="checkbox" formControlName="isObese" class="risk-checkbox">
+            <span class="risk-label">Obese</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Section: Social History (One Row) -->
+      <div class="section-head">
+        <div class="section-copy">
+          <span class="section-title"><i class="fa-solid fa-earth-americas" aria-hidden="true"></i> Social History</span>
+          <span class="section-subtitle">Lifestyle and occupation</span>
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field span-2 risk-item">
+          <label class="field-label toggle-label">
+            <input type="checkbox" formControlName="smoking" class="risk-checkbox">
+            <span class="risk-label">Smoking</span>
+          </label>
+        </div>
+        <div class="field span-2 risk-item">
+          <label class="field-label toggle-label">
+            <input type="checkbox" formControlName="obesity" class="risk-checkbox">
+            <span class="risk-label">Obesity</span>
+          </label>
+        </div>
+        <div class="field span-2 risk-item">
+          <label class="field-label toggle-label">
+            <input type="checkbox" formControlName="alcohol" class="risk-checkbox">
+            <span class="risk-label">Alcohol</span>
+          </label>
+        </div>
+        <div class="field span-6">
+          <label class="field-label">
+            <i class="fa-solid fa-briefcase" aria-hidden="true"></i> Occupation
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-briefcase field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              formControlName="occupation"
+              class="field-input"
+              placeholder="Teacher, Engineer"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes (Full Width) -->
+      <div class="field-grid">
+        <div class="field span-12">
+          <label class="field-label">
+            <i class="fa-solid fa-note-sticky" aria-hidden="true"></i> Notes
+          </label>
+          <div class="input-shell">
+            <i class="fa-solid fa-note-sticky field-icon" aria-hidden="true"></i>
+            <textarea
+              formControlName="notes"
+              class="field-textarea"
+              placeholder="Additional notes about the patient..."
+              rows="2"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <div class="chart-card-footer">
+        <span class="footer-note">
+          <i class="fa-solid fa-shield-heart" aria-hidden="true"></i> Patient data is encrypted
+        </span>
+        <button type="submit" class="btn-submit" [disabled]="isLoading || patientForm.invalid">
+          <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+          {{ isLoading ? 'Saving...' : (editId ? 'Update Patient' : 'Add Patient') }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

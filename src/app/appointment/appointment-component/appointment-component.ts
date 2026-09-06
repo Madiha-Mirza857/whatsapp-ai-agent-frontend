@@ -12,7 +12,7 @@ import { AuthService } from '../../auth/auth-service';
 @Component({
   selector: 'app-appointment-component',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink,AppointmentCalendarComponent],
+  imports: [CommonModule, FormsModule,AppointmentCalendarComponent],
   templateUrl: './appointment-component.html',
   styleUrl: './appointment-component.css',
 })

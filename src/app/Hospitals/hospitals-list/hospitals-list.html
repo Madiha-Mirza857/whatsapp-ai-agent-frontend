@@ -118,7 +118,7 @@
                   </td>
                   <td>
                     <span class="badge badge-plan">
-                      {{ h.plan?.toUpperCase() }}
+                      {{ h.plan.toUpperCase() }}
                     </span>
                   </td>
                   <!-- ✅ Opening Hours Display with safe checks -->
@@ -132,8 +132,8 @@
                       } @else {
                         <span class="hours-text">
                           @if (h.openingTime && h.closingTime) {
-                            {{ h.openingTime?.substring(0, 5) }} -
-                            {{ h.closingTime?.substring(0, 5) }}
+                            {{ h.openingTime.substring(0, 5) }} -
+                            {{ h.closingTime.substring(0, 5) }}
                           } @else {
                             <span class="text-muted">Not set</span>
                           }

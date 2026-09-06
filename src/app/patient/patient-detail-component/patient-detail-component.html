@@ -1,0 +1,214 @@
+<!-- src/app/patient/patient-detail.html -->
+<div class="detail-wrapper">
+  <svg class="wrapper-pulse-bg" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,60 L220,60 L250,15 L280,105 L310,60 L340,80 L360,60 L1200,60"
+          fill="none" stroke="currentColor" stroke-width="2"/>
+  </svg>
+
+  <div class="page-shell">
+    <!-- Header -->
+    <div class="header-row">
+      <h1 class="detail-title">
+        <i class="fa-solid fa-user" aria-hidden="true"></i>
+        Patient Details
+      </h1>
+      <div class="header-actions">
+        <button type="button" class="btn-ghost" (click)="goBack()">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to List
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading) {
+      <div class="loading-state">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <span>Loading patient details...</span>
+      </div>
+    }
+
+    <!-- Not Found -->
+    @if (notFound) {
+      <div class="status-alert status-alert--warning" role="status">
+        <i class="fa-solid fa-exclamation-triangle" aria-hidden="true"></i>
+        Patient record not found.
+      </div>
+    }
+
+    <!-- Patient Details -->
+    @if (patient && !isLoading) {
+      <div class="detail-card">
+        <!-- Profile Header -->
+        <div class="profile-header">
+          <div class="profile-avatar">
+            <span>{{ getInitials(patient.name) }}</span>
+          </div>
+          <div class="profile-info">
+            <h2 class="profile-name">{{ patient.name }}</h2>
+            <div class="profile-meta">
+              <span class="meta-item">
+                <i class="fa-solid fa-phone"></i> {{ patient.phoneNumber }}
+              </span>
+              @if (patient.cnic) {
+                <span class="meta-item">
+                  <i class="fa-solid fa-id-card"></i> {{ patient.cnic }}
+                </span>
+              }
+              @if (patient.bloodGroup) {
+                <span class="badge {{ getBloodGroupBadge(patient.bloodGroup) }}">
+                  {{ patient.bloodGroup }}
+                </span>
+              }
+              <span class="status-badge" [class.active]="patient.isActive" [class.inactive]="!patient.isActive">
+                {{ patient.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+          </div>
+          <div class="profile-actions">
+            <button type="button" class="btn-submit btn-submit--sm" (click)="editPatient()">
+              <i class="fa-solid fa-pencil"></i> Edit
+            </button>
+            <button type="button" class="btn-submit btn-submit--sm btn-danger" (click)="deletePatient()">
+              <i class="fa-solid fa-trash"></i> Delete
+            </button>
+          </div>
+        </div>
+
+        <!-- Details Grid -->
+        <div class="detail-grid">
+          <!-- Basic Info -->
+          <div class="detail-section">
+            <h3 class="section-title">
+              <i class="fa-solid fa-user" aria-hidden="true"></i> Basic Information
+            </h3>
+            <div class="detail-row">
+              <div class="detail-item">
+                <span class="detail-label">Full Name</span>
+                <span class="detail-value">{{ patient.name }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Phone Number</span>
+                <span class="detail-value">{{ patient.phoneNumber }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">CNIC</span>
+                <span class="detail-value">{{ patient.cnic || 'N/A' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Emergency Contact</span>
+                <span class="detail-value">{{ patient.emergencyContact || 'N/A' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Demographics -->
+          <div class="detail-section">
+            <h3 class="section-title">
+              <i class="fa-solid fa-venus-mars" aria-hidden="true"></i> Demographics
+            </h3>
+            <div class="detail-row">
+              <div class="detail-item">
+                <span class="detail-label">Date of Birth</span>
+                <span class="detail-value">{{ patient.dateOfBirth ? (patient.dateOfBirth | date:'mediumDate') : 'N/A' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Age</span>
+                <span class="detail-value">{{ patient.age || 'N/A' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Gender</span>
+                <span class="detail-value">{{ patient.gender ? (patient.gender | titlecase) : 'N/A' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Blood Group</span>
+                <span class="detail-value">
+                  @if (patient.bloodGroup) {
+                    <span class="badge {{ getBloodGroupBadge(patient.bloodGroup) }}">
+                      {{ patient.bloodGroup }}
+                    </span>
+                  } @else {
+                    N/A
+                  }
+                </span>
+              </div>
+              <div class="detail-item full-width">
+                <span class="detail-label">Address</span>
+                <span class="detail-value">{{ patient.address || 'N/A' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Medical History -->
+          <div class="detail-section">
+            <h3 class="section-title">
+              <i class="fa-solid fa-heart-pulse" aria-hidden="true"></i> Medical History
+            </h3>
+            <div class="detail-row">
+              <div class="detail-item">
+                <span class="detail-label">Allergies</span>
+                <span class="detail-value">{{ formatList(patient.allergies) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Past Surgeries</span>
+                <span class="detail-value">{{ formatList(patient.pastSurgeries) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Chronic Diseases</span>
+                <span class="detail-value">{{ formatList(patient.chronicDiseases) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Family History</span>
+                <span class="detail-value">{{ patient.familyHistory || 'None' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Risk Factors -->
+          <div class="detail-section">
+            <h3 class="section-title">
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Risk Factors
+            </h3>
+            <div class="risk-grid">
+              @for (risk of getRiskFactors(); track risk.label) {
+                <div class="risk-item" [class.risk-positive]="risk.value" [class.risk-negative]="!risk.value">
+                  <span class="risk-dot" [class.active]="risk.value"></span>
+                  <span class="risk-label">{{ risk.label }}</span>
+                  <span class="risk-value">{{ risk.value ? 'Yes' : 'No' }}</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Social History -->
+          <div class="detail-section">
+            <h3 class="section-title">
+              <i class="fa-solid fa-earth-americas" aria-hidden="true"></i> Social History
+            </h3>
+            <div class="detail-row">
+              @for (item of getSocialHistory(); track item.label) {
+                <div class="detail-item">
+                  <span class="detail-label">{{ item.label }}</span>
+                  <span class="detail-value">{{ item.value }}</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Notes -->
+          @if (patient.notes) {
+            <div class="detail-section">
+              <h3 class="section-title">
+                <i class="fa-solid fa-note-sticky" aria-hidden="true"></i> Notes
+              </h3>
+              <div class="notes-box">
+                {{ patient.notes }}
+              </div>
+            </div>
+          }
+
+   
+        </div>
+      </div>
+    }
+  </div>
+</div>

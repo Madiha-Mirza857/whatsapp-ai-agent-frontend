@@ -97,12 +97,25 @@ export class DoctorsList implements OnInit {
     return this.specializationColors[specialization] || 'badge-gray';
   }
 
-  getInitials(name: string): string {
-    if (!name) return '';
-    const parts = name.split(' ');
-    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+getInitials(name: string): string {
+  if (!name || name.trim() === '') return '?';
+  
+  const trimmedName = name.trim();
+  const parts = trimmedName.split(' ');
+  const filteredParts = parts.filter(part => part.length > 0);
+  
+  if (filteredParts.length === 0) return '?';
+  if (filteredParts.length === 1) {
+    const firstPart = filteredParts[0];
+    return firstPart.length >= 2 
+      ? firstPart.substring(0, 2).toUpperCase() 
+      : (firstPart + '?').toUpperCase();
   }
+  
+  const firstInitial = filteredParts[0][0] || '';
+  const lastInitial = filteredParts[filteredParts.length - 1][0] || '';
+  return (firstInitial + lastInitial).toUpperCase();
+}
 
   deleteDoctor(id: string): void {
     if (!confirm('Are you sure you want to delete this doctor?')) return;
