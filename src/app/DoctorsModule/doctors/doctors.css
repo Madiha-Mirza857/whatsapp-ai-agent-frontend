@@ -163,13 +163,15 @@
 .field-label i { color: var(--teal-500); font-size: 0.7rem; }
 
 .required-blip {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--pulse);
+  width: auto;
+  height: auto;
+  color: var(--pulse);
   display: inline-block;
-  animation: blip 1.6s ease-in-out infinite;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
 }
+.required-blip::before { content: '*'; }
 
 .field-hint {
   font-size: 0.68rem;

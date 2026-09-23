@@ -1,0 +1,422 @@
+<!-- src/app/prescription/prescription-form/prescription-form.html -->
+<div class="rx-wrapper">
+  <svg class="rx-watermark" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,60 L220,60 L250,15 L280,105 L310,60 L340,80 L360,60 L1200,60"
+          fill="none" stroke="currentColor" stroke-width="2"/>
+  </svg>
+
+  <div class="rx-shell">
+
+    <!-- ═══════════ HEADER ═══════════ -->
+    <header class="rx-header">
+      <div class="rx-header-left">
+        <div class="rx-brand-icon"><i class="fas fa-prescription"></i></div>
+        <div>
+          <h1 class="rx-title">{{ editId ? 'Update Prescription' : 'New Prescription' }}</h1>
+          <p class="rx-subtitle">Digitally signed &amp; archived automatically</p>
+        </div>
+      </div>
+      <a routerLink="/doctor/prescriptions-list" class="rx-btn-ghost">
+        <i class="fas fa-list"></i>
+        <span class="hide-sm">Prescriptions</span>
+      </a>
+    </header>
+
+    <!-- ═══════════ ERROR SUMMARY ═══════════ -->
+    @if (showErrorSummary && getFormErrors().length) {
+      <div class="rx-alert rx-alert--danger" role="alert">
+        <i class="fas fa-triangle-exclamation"></i>
+        <div>
+          <strong>Please fix {{ getFormErrors().length }} issue(s):</strong>
+          <ul>
+            @for (err of getFormErrors(); track err) {
+              <li>{{ err }}</li>
+            }
+          </ul>
+        </div>
+      </div>
+    }
+
+    <!-- ═══════════ MAIN FORM ═══════════ -->
+    <form [formGroup]="prescriptionForm" (ngSubmit)="onSubmit()" class="rx-form">
+
+      <!-- ─────── PATIENT ─────── -->
+      <section class="rx-card rx-card--patient">
+        <div class="rx-card-head">
+          <span class="rx-card-title"><i class="fas fa-user-injured"></i> Patient</span>
+          @if (isFieldInvalid('patientId')) {
+            <span class="rx-req-tag">Required</span>
+          }
+        </div>
+
+        <div class="rx-patient-search" [class.is-open]="isDropdownOpen">
+          <div class="rx-input-shell rx-input-shell--clickable" (click)="toggleDropdown()">
+            <i class="fas fa-search rx-icon"></i>
+            <input type="text" class="rx-input"
+                   placeholder="Search by name, phone or CNIC…"
+                   [value]="patientSearch || getSelectedPatientName()" readonly />
+            <i class="fas fa-chevron-down rx-arrow"></i>
+          </div>
+
+          @if (isDropdownOpen) {
+            <div class="rx-dropdown" (click)="$event.stopPropagation()">
+              <div class="rx-dropdown-search">
+                <i class="fas fa-magnifying-glass"></i>
+                <input #searchInput type="text" class="rx-dropdown-input"
+                       placeholder="Type to filter…"
+                       (input)="onSearchInput($event)"
+                       (keydown)="onDropdownKeydown($event)" />
+              </div>
+              <div class="rx-dropdown-list" #dropdownList>
+                @for (patient of filteredPatients; track patient.id; let i = $index) {
+                  <div class="rx-dropdown-item"
+                       [class.selected]="patient.id === selectedPatientId"
+                       [class.highlighted]="i === highlightedIndex"
+                       (click)="selectPatient(patient)"
+                       (mouseenter)="highlightedIndex = i">
+                    <div class="rx-dropdown-item-main">
+                      <i class="fas fa-user-circle"></i>
+                      <span class="rx-dropdown-name">{{ patient.name }}</span>
+                    </div>
+                    <div class="rx-dropdown-item-meta">
+                      <span class="rx-chip">{{ patient.phoneNumber }}</span>
+                      @if (patient.cnic) {
+                        <span class="rx-chip rx-chip--muted">{{ patient.cnic }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+                @if (filteredPatients.length === 0) {
+                  <div class="rx-dropdown-empty">
+                    <i class="fas fa-user-slash"></i>
+                    <p>No patients found</p>
+                    <a routerLink="/doctor/patient-form">+ Add new patient</a>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (selectedPatient) {
+          <div class="rx-selected-patient">
+            <div class="rx-selected-info">
+              <i class="fas fa-user-check"></i>
+              <div>
+                <strong>{{ selectedPatient.name }}</strong>
+                <span>{{ selectedPatient.phoneNumber }}
+                  @if (selectedPatient.cnic) { · {{ selectedPatient.cnic }} }
+                </span>
+              </div>
+            </div>
+            <button type="button" class="rx-clear-btn" (click)="clearPatient()" aria-label="Clear patient">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        }
+
+        @if (isFieldInvalid('patientId')) {
+          <span class="rx-error">{{ getFieldError('patientId') }}</span>
+        }
+      </section>
+
+      <!-- ─────── CLINICAL ─────── -->
+      <section class="rx-card">
+        <div class="rx-card-head">
+          <span class="rx-card-title"><i class="fas fa-stethoscope"></i> Clinical Details</span>
+        </div>
+
+        <div class="rx-row-2">
+          <div class="rx-field">
+            <label class="rx-label">
+              Chief Complaints
+              @if (isFieldInvalid('chiefComplaints')) { <span class="rx-req">*</span> }
+            </label>
+            <div class="rx-input-shell">
+              <i class="fas fa-comment-medical rx-icon"></i>
+              <textarea formControlName="chiefComplaints" class="rx-input rx-textarea"
+                        placeholder="e.g., Fever, headache for 3 days…" rows="2"></textarea>
+            </div>
+            @if (isFieldInvalid('chiefComplaints')) {
+              <span class="rx-error">{{ getFieldError('chiefComplaints') }}</span>
+            }
+          </div>
+
+          <div class="rx-field">
+            <label class="rx-label">Examination</label>
+            <div class="rx-input-shell">
+              <i class="fas fa-notes-medical rx-icon"></i>
+              <textarea formControlName="examination" class="rx-input rx-textarea"
+                        placeholder="Physical exam findings…" rows="2"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="rx-row-2">
+          <div class="rx-field">
+            <label class="rx-label">
+              Diagnosis
+              @if (isFieldInvalid('diagnosis')) { <span class="rx-req">*</span> }
+            </label>
+            <div class="rx-input-shell">
+              <i class="fas fa-diagnoses rx-icon"></i>
+              <input type="text" formControlName="diagnosis" class="rx-input"
+                     placeholder="e.g., Acute Viral URI" />
+            </div>
+            @if (isFieldInvalid('diagnosis')) {
+              <span class="rx-error">{{ getFieldError('diagnosis') }}</span>
+            }
+          </div>
+
+          <div class="rx-field">
+            <label class="rx-label">Advice</label>
+            <div class="rx-input-shell">
+              <i class="fas fa-lightbulb rx-icon"></i>
+              <input type="text" formControlName="advice" class="rx-input"
+                     placeholder="Rest, hydration, diet…" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─────── LOWER GRID ─────── -->
+      <div class="rx-lower-grid">
+
+        <!-- ══════ LEFT: MEDICINE ENTRY (OUTSIDE main form!) ══════ -->
+        <div class="rx-lower-left">
+          <section class="rx-card rx-card--meds" #medEntryCard>
+            <div class="rx-card-head">
+              <span class="rx-card-title">
+                <i class="fas" [class.fa-plus-circle]="editingIndex === null" [class.fa-pen-to-square]="editingIndex !== null"></i>
+                {{ editingIndex !== null ? 'Update Medicine' : 'Add Medicine' }}
+              </span>
+              <span class="rx-pill">{{ medicinesList.length }} added</span>
+            </div>
+
+            @if (editingIndex !== null) {
+              <div class="rx-edit-banner">
+                <i class="fas fa-info-circle"></i>
+                Editing <strong>#{{ editingIndex + 1 }}</strong> — update fields and click Save
+                <button type="button" class="rx-edit-cancel" (click)="cancelEditMedicine()">
+                  <i class="fas fa-times"></i> Cancel
+                </button>
+              </div>
+            }
+
+            <form [formGroup]="medicineEntryForm" (ngSubmit)="addMedicineToList()" class="rx-med-entry">
+              <div class="rx-field">
+                <label class="rx-label">Medicine Name <span class="rx-req">*</span></label>
+                <div class="rx-input-shell">
+                  <input #medicineNameInput type="text" formControlName="name" class="rx-input"
+                         placeholder="e.g., Panadol 500mg"
+                         (keydown.enter)="$event.preventDefault(); addMedicineToList()" />
+                </div>
+              </div>
+
+              <div class="rx-row-2">
+                <div class="rx-field">
+                  <label class="rx-label">Dosage <span class="rx-req">*</span></label>
+                  <div class="rx-input-shell">
+                    <input type="text" formControlName="dosage" class="rx-input"
+                           placeholder="1+0+1"
+                           (keydown.enter)="$event.preventDefault(); addMedicineToList()" />
+                  </div>
+                </div>
+                <div class="rx-field">
+                  <label class="rx-label">Frequency <span class="rx-req">*</span></label>
+                  <div class="rx-input-shell">
+                    <input type="text" formControlName="frequency" class="rx-input"
+                           placeholder="Daily"
+                           (keydown.enter)="$event.preventDefault(); addMedicineToList()" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="rx-row-2">
+                <div class="rx-field">
+                  <label class="rx-label">Duration <span class="rx-req">*</span></label>
+                  <div class="rx-input-shell">
+                    <input type="text" formControlName="duration" class="rx-input"
+                           placeholder="5 days"
+                           (keydown.enter)="$event.preventDefault(); addMedicineToList()" />
+                  </div>
+                </div>
+                <div class="rx-field">
+                  <label class="rx-label">Timing</label>
+                  <div class="rx-input-shell">
+                    <select formControlName="timing" class="rx-input rx-select">
+                      <option value="">Select</option>
+                      <option value="Morning">Morning</option>
+                      <option value="Afternoon">Afternoon</option>
+                      <option value="Evening">Evening</option>
+                      <option value="Night">Night</option>
+                      <option value="After meal">After meal</option>
+                      <option value="Before meal">Before meal</option>
+                      <option value="With meal">With meal</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rx-field">
+                <label class="rx-label">Instructions</label>
+                <div class="rx-input-shell">
+                  <input type="text" formControlName="instructions" class="rx-input"
+                         placeholder="e.g., Take with water"
+                         (keydown.enter)="$event.preventDefault(); addMedicineToList()" />
+                </div>
+              </div>
+
+              <button type="submit" class="rx-btn-add rx-btn-add--block"
+                      [class.rx-btn-add--update]="editingIndex !== null">
+                <i class="fas" [class.fa-plus]="editingIndex === null" [class.fa-check]="editingIndex !== null"></i>
+                {{ editingIndex !== null ? 'Update Medicine' : 'Add to List' }}
+              </button>
+
+              @if (medicineEntryError) {
+                <span class="rx-error">{{ medicineEntryError }}</span>
+              }
+            </form>
+          </section>
+
+          <!-- FOLLOW-UP -->
+          <section class="rx-card">
+            <div class="rx-card-head">
+              <span class="rx-card-title"><i class="fas fa-calendar-check"></i> Follow-up</span>
+            </div>
+
+            <div class="rx-row-2">
+              <div class="rx-field">
+                <label class="rx-label">Follow-up Date</label>
+                <div class="rx-input-shell">
+                  <i class="fas fa-calendar-day rx-icon"></i>
+                  <input type="date" formControlName="followUpDate" class="rx-input" />
+                </div>
+              </div>
+              <div class="rx-field">
+                <label class="rx-label">Follow-up Notes</label>
+                <div class="rx-input-shell">
+                  <i class="fas fa-pen rx-icon"></i>
+                  <input type="text" formControlName="followUpNotes" class="rx-input" placeholder="Notes…" />
+                </div>
+              </div>
+            </div>
+
+            <div class="rx-field">
+              <label class="rx-label">Additional Notes</label>
+              <div class="rx-input-shell">
+                <i class="fas fa-file-alt rx-icon"></i>
+                <textarea formControlName="notes" class="rx-input rx-textarea"
+                          placeholder="Any additional notes…" rows="2"></textarea>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ══════ RIGHT: TABLE (OUTSIDE main form) ══════ -->
+        <div class="rx-lower-right">
+          <section class="rx-card rx-card--full">
+            <div class="rx-card-head">
+              <span class="rx-card-title"><i class="fas fa-pills"></i> Prescribed Medicines</span>
+              <span class="rx-pill">{{ medicinesList.length }} medicine{{ medicinesList.length !== 1 ? 's' : '' }}</span>
+            </div>
+
+            @if (medicinesList.length > 0) {
+              <div class="rx-med-table-wrap"
+                   appTableNavigation
+                   tabindex="0"
+                   [updateFn]="onUpdateMedicine"
+                   [deleteFn]="onDeleteMedicine">
+                <table class="rx-med-table">
+                  <thead>
+                    <tr>
+                      <th class="rx-th-num">#</th>
+                      <th>Medicine</th>
+                      <th>Dosage</th>
+                      <th>Freq</th>
+                      <th>Duration</th>
+                      <th>Timing</th>
+                      <th class="rx-th-actions">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (med of medicinesList; track med.id; let i = $index) {
+                      <tr attr.data-index="{{ i }}"
+                          [class.editing]="editingIndex === i">
+                        <td class="rx-td-num">
+                          <span class="rx-row-badge">{{ i + 1 }}</span>
+                        </td>
+                        <td>
+                          <strong>{{ med.name }}</strong>
+                          @if (med.instructions) {
+                            <div class="rx-td-note">{{ med.instructions }}</div>
+                          }
+                        </td>
+                        <td>{{ med.dosage }}</td>
+                        <td>{{ med.frequency }}</td>
+                        <td>{{ med.duration }}</td>
+                        <td>
+                          @if (med.timing) {
+                            <span class="rx-chip rx-chip--sm">{{ med.timing }}</span>
+                          } @else {
+                            <span class="rx-muted">—</span>
+                          }
+                        </td>
+                        <td class="rx-td-actions">
+                          <button type="button"
+                                  class="rx-icon-btn rx-icon-btn--edit edit-btn"
+                                  (click)="editMedicine(i)" title="Edit (Enter)">
+                            <i class="fas fa-pen"></i>
+                          </button>
+                          <button type="button"
+                                  class="rx-icon-btn rx-icon-btn--del delete-btn"
+                                  (click)="deleteMedicine(i)" title="Delete (Ctrl+D)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="rx-hint-strip">
+                <i class="fas fa-keyboard"></i>
+                <kbd>Enter</kbd> edit · <kbd>Ctrl</kbd>+<kbd>D</kbd> delete · <kbd>↑</kbd><kbd>↓</kbd> navigate
+              </div>
+            } @else {
+              <div class="rx-meds-empty">
+                <i class="fas fa-prescription-bottle"></i>
+                <p>No medicines added yet</p>
+                <span>Fill the form on the left and click <strong>Add to List</strong></span>
+              </div>
+            }
+          </section>
+        </div>
+      </div>
+
+      <!-- ═══════════ STICKY FOOTER ═══════════ -->
+      <div class="rx-footer">
+        <span class="rx-footer-note">
+          <i class="fas fa-shield-heart"></i>
+          <span class="hide-sm">Digitally signed &amp; archived</span>
+        </span>
+        <div class="rx-footer-actions">
+          <button type="button" class="rx-btn-ghost" (click)="resetForm()">
+            <i class="fas fa-rotate-left"></i>
+            <span class="hide-sm">Reset</span>
+          </button>
+          <button type="submit" class="rx-btn-primary" [disabled]="isLoading">
+            @if (isLoading) {
+              <i class="fas fa-spinner fa-spin"></i> Saving…
+            } @else {
+              <i class="fas fa-floppy-disk"></i>
+              {{ editId ? 'Update Prescription' : 'Generate Prescription' }}
+            }
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>

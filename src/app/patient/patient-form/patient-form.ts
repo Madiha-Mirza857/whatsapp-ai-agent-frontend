@@ -36,15 +36,11 @@ export class PatientForm implements OnInit, AfterViewInit, OnDestroy {
   bloodGroups = BLOOD_GROUPS;
   genders = ['male', 'female', 'other'];
 
-  // Availability checks
-  isPhoneChecking = false;
+  //  CNIC availability checks only (phone check REMOVED)
   isCnicChecking = false;
-  phoneCheckMessage = '';
   cnicCheckMessage = '';
-  phoneAvailable = false;
   cnicAvailable = false;
 
-  private phoneSubject = new Subject<string>();
   private cnicSubject = new Subject<string>();
   private destroy$ = new Subject<void>();
 
@@ -110,7 +106,7 @@ export class PatientForm implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.editId = new URLSearchParams(window.location.search).get('id');
 
-    //  Auto-calculate age from DOB
+    // Auto-calculate age from DOB
     this.patientForm.get('dateOfBirth')?.valueChanges.subscribe((dob) => {
       if (dob) {
         const age = this.calculateAge(dob);
@@ -120,41 +116,9 @@ export class PatientForm implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    // Phone validation
-    this.phoneSubject.pipe(
-      debounceTime(500),
-      distinctUntilChanged(),
-      switchMap((phone) => {
-        if (!phone || this.patientForm.get('phoneNumber')?.invalid) {
-          this.clearPhoneStatus();
-          return of(null);
-        }
-        this.isPhoneChecking = true;
-        return this.patientService.checkPhoneAvailability(phone, this.editId || undefined);
-      }),
-      takeUntil(this.destroy$),
-    ).subscribe((result) => {
-      this.isPhoneChecking = false;
-      if (result) {
-        this.phoneAvailable = result.available;
-        this.phoneCheckMessage = result.available ? ' Available' : '❌ Already registered';
-        const phoneControl = this.patientForm.get('phoneNumber');
-        if (!result.available) {
-          phoneControl?.setErrors({ ...phoneControl?.errors, taken: true });
-        } else {
-          const errors = phoneControl?.errors;
-          if (errors) {
-            delete errors['taken'];
-            if (Object.keys(errors).length === 0) {
-              phoneControl?.setErrors(null);
-            }
-          }
-        }
-        this.cdr.detectChanges();
-      }
-    });
+    // ❌ Phone validation REMOVED - no more phone availability checks
 
-    // CNIC validation
+    //  CNIC validation only
     this.cnicSubject.pipe(
       debounceTime(500),
       distinctUntilChanged(),
@@ -213,21 +177,10 @@ export class PatientForm implements OnInit, AfterViewInit, OnDestroy {
     return age;
   }
 
-  clearPhoneStatus(): void {
-    this.phoneCheckMessage = '';
-    this.phoneAvailable = false;
-    this.isPhoneChecking = false;
-  }
-
   clearCnicStatus(): void {
     this.cnicCheckMessage = '';
     this.cnicAvailable = false;
     this.isCnicChecking = false;
-  }
-
-  onPhoneInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.phoneSubject.next(input.value);
   }
 
   onCnicInput(event: Event): void {
@@ -288,9 +241,6 @@ export class PatientForm implements OnInit, AfterViewInit, OnDestroy {
     const field = this.patientForm.get(fieldName);
     if (field?.errors) {
       if (field.errors['taken']) {
-        if (fieldName === 'phoneNumber') {
-          return '❌ This phone number is already registered.';
-        }
         if (fieldName === 'cnic') {
           return '❌ This CNIC is already registered.';
         }
@@ -319,11 +269,7 @@ export class PatientForm implements OnInit, AfterViewInit, OnDestroy {
 
     if (controls.name.invalid) errors.push('Patient Name is required');
     if (controls.phoneNumber.invalid) {
-      if (controls.phoneNumber.errors?.['taken']) {
-        errors.push('This phone number is already registered.');
-      } else {
-        errors.push('Valid Phone Number is required (10-15 digits)');
-      }
+      errors.push('Valid Phone Number is required (10-15 digits)');
     }
     if (controls.cnic.invalid && controls.cnic.errors?.['taken']) {
       errors.push('This CNIC is already registered.');
@@ -339,12 +285,7 @@ export class PatientForm implements OnInit, AfterViewInit, OnDestroy {
   onSubmit(): void {
     this.patientForm.markAllAsTouched();
 
-    if (this.patientForm.get('phoneNumber')?.errors?.['taken']) {
-      this.showErrorSummary = true;
-      this.toastService.show('❌ This phone number is already registered.', 'error');
-      return;
-    }
-
+    // ❌ Phone taken check REMOVED
     if (this.patientForm.get('cnic')?.errors?.['taken']) {
       this.showErrorSummary = true;
       this.toastService.show('❌ This CNIC is already registered.', 'error');
@@ -380,18 +321,17 @@ export class PatientForm implements OnInit, AfterViewInit, OnDestroy {
       pastSurgeries: parseList(formData.pastSurgeries),
       chronicDiseases: parseList(formData.chronicDiseases),
       familyHistory: formData.familyHistory || undefined,
-     socialHistory: {
-    smoking: !!formData.smoking,
-    obesity: !!formData.obesity,
-    alcohol: !!formData.alcohol,
-    occupation: formData.occupation || '',
-  },
-        hasDiabetes: !!formData.hasDiabetes,
-  hasHypertension: !!formData.hasHypertension,
-  hasHeartDisease: !!formData.hasHeartDisease,
-  isSmoker: !!formData.isSmoker,
-  isObese: !!formData.isObese,
-  
+      socialHistory: {
+        smoking: !!formData.smoking,
+        obesity: !!formData.obesity,
+        alcohol: !!formData.alcohol,
+        occupation: formData.occupation || '',
+      },
+      hasDiabetes: !!formData.hasDiabetes,
+      hasHypertension: !!formData.hasHypertension,
+      hasHeartDisease: !!formData.hasHeartDisease,
+      isSmoker: !!formData.isSmoker,
+      isObese: !!formData.isObese,
     };
 
     this.isLoading = true;
@@ -456,7 +396,6 @@ export class PatientForm implements OnInit, AfterViewInit, OnDestroy {
     this.editId = null;
     this.patientNotFound = false;
     this.showErrorSummary = false;
-    this.clearPhoneStatus();
     this.clearCnicStatus();
     this.focusName();
   }

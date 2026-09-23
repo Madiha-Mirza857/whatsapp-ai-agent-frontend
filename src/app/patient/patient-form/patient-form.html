@@ -79,7 +79,7 @@
           }
         </div>
 
-        <!-- Phone Number -->
+        <!-- Phone Number - ❌ No availability check -->
         <div class="field span-3">
           <label class="field-label">
             <i class="fa-solid fa-phone" aria-hidden="true"></i> Phone Number
@@ -87,31 +87,21 @@
               <span class="required-blip"></span>
             }
           </label>
-          <div class="input-shell" [class.has-error]="patientForm.get('phoneNumber')?.errors?.['taken']">
+          <div class="input-shell">
             <i class="fa-solid fa-phone field-icon" aria-hidden="true"></i>
             <input
               type="text"
               formControlName="phoneNumber"
               class="field-input"
               placeholder="03001234567"
-              (input)="onPhoneInput($event)"
             />
-            @if (isPhoneChecking) {
-              <span class="field-loading"><i class="fa-solid fa-spinner fa-spin"></i></span>
-            }
           </div>
-          @if (phoneCheckMessage) {
-            <span class="field-availability" [class.available]="phoneAvailable" [class.taken]="!phoneAvailable">
-              <i class="fa-solid" [class.fa-check-circle]="phoneAvailable"></i>
-              {{ phoneCheckMessage }}
-            </span>
-          }
           @if (isFieldInvalid('phoneNumber')) {
             <span class="field-error">{{ getFieldError('phoneNumber') }}</span>
           }
         </div>
 
-        <!-- CNIC -->
+        <!-- CNIC -  With availability check -->
         <div class="field span-3">
           <label class="field-label">
             <i class="fa-solid fa-id-card" aria-hidden="true"></i> CNIC

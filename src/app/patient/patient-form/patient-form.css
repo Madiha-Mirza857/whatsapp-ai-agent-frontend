@@ -205,13 +205,15 @@
 }
 
 .required-blip {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--pulse);
+  width: auto;
+  height: auto;
+  color: var(--pulse);
   display: inline-block;
-  animation: blip 1.6s ease-in-out infinite;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
 }
+.required-blip::before { content: '*'; }
 @keyframes blip {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.2; }

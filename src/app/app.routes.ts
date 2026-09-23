@@ -14,14 +14,15 @@ import { Dashboard } from './superadmin/dashboard/dashboard';
 import { PatientList } from './patient/patient-list/patient-list';
 import { PatientForm } from './patient/patient-form/patient-form';
 import { PatientDetailComponent } from './patient/patient-detail-component/patient-detail-component';
-
+import { PrescriptionForm } from './prescription/prescription-form/prescription-form';
+import { PrescriptionList } from './prescription/prescription-list/prescription-list';
 
 export const routes: Routes = [
   // Public Routes
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: Auth },
 
-  // Admin Routes (HOSPITAL_ADMIN & SUPER_ADMIN only)
+  // Admin Routes (HOSPITAL_ADMIN & SUPER_ADMIN)
   {
     path: 'admin',
     canActivate: [AuthGuard, RoleGuard],
@@ -36,24 +37,10 @@ export const routes: Routes = [
       { path: 'hospitalsList', component: HospitalsList, data: { roles: ['SUPER_ADMIN'] } },
       { path: 'patients-list', component: PatientList, data: { roles: ['HOSPITAL_ADMIN'] } },
       { path: 'patient-form', component: PatientForm, data: { roles: ['HOSPITAL_ADMIN'] } },
-      { path: 'patient-form/:id', component: PatientForm, data: { roles: ['HOSPITAL_ADMIN'] } }, // edit form
-      {
-        path: 'patient-detail',
-        component: PatientDetailComponent,
-        canActivate: [AuthGuard],
-        data: { roles: ['HOSPITAL_ADMIN'] }
-      }
-    ],
-  },
-  {
-    path: 'admin',
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['SUPER_ADMIN'] },
-    children: [
-      { path: 'register', component: HospitalRegistration },
-      { path: 'register/:id', component: HospitalRegistration },
-      { path: 'hospitalsList', component: HospitalsList },
-
+      { path: 'patient-form/:id', component: PatientForm, data: { roles: ['HOSPITAL_ADMIN'] } },
+      { path: 'patient-detail', component: PatientDetailComponent, canActivate: [AuthGuard], data: { roles: ['HOSPITAL_ADMIN'] } },
+      // Prescription list for HOSPITAL_ADMIN under admin
+      { path: 'prescriptions-list', component: PrescriptionList, data: { roles: ['HOSPITAL_ADMIN'] } },
     ],
   },
 
@@ -65,11 +52,15 @@ export const routes: Routes = [
     children: [
       { path: 'dashboard', component: DoctorDashboard },
       { path: 'slots', component: DoctorSlotComponent },
-
+  
+      { path: 'prescription-form', component: PrescriptionForm },
+      { path: 'prescription-form/:id', component: PrescriptionForm },
+      { path: 'prescriptions-list', component: PrescriptionList },
     ],
   },
-  { path: "super-admin/dashboard", component: Dashboard },
-  { path: "appointment", component: AppointmentComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['DOCTOR', 'HOSPITAL_ADMIN'] } },
+
+  { path: 'super-admin/dashboard', component: Dashboard },
+  { path: 'appointment', component: AppointmentComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['DOCTOR', 'HOSPITAL_ADMIN'] } },
 
   // Redirect to appropriate dashboard
   { path: 'dashboard', redirectTo: '/admin/dashboard', pathMatch: 'full' },

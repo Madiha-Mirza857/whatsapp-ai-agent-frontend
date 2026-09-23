@@ -144,7 +144,9 @@
           <div class="field span-6">
             <label class="field-label">
               <i class="fa-solid fa-pen" aria-hidden="true"></i> Enter Specialization
-              <span class="required-blip" aria-label="required"></span>
+              @if (doctorForm.get('customSpecialization')?.invalid && doctorForm.get('customSpecialization')?.touched) {
+                <span class="required-blip" aria-label="required field error"></span>
+              }
             </label>
             <div class="input-shell">
               <i class="fa-solid fa-pen field-icon" aria-hidden="true"></i>

@@ -153,14 +153,9 @@ export class PatientService {
   // AVAILABILITY CHECKS
   // ============================================================
 
-  checkPhoneAvailability(phone: string, excludePatientId?: string): Observable<AvailabilityResponse> {
-    let params = new HttpParams().set('phone', phone);
-    if (excludePatientId) {
-      params = params.set('excludePatientId', excludePatientId);
-    }
-    return this.http.get<AvailabilityResponse>(`${this.baseUrl}/check/phone`, { params });
-  }
+  //  Phone availability check REMOVED - no longer needed
 
+  //  CNIC availability check only
   checkCnicAvailability(cnic: string, excludePatientId?: string): Observable<AvailabilityResponse> {
     let params = new HttpParams().set('cnic', cnic);
     if (excludePatientId) {
@@ -190,16 +185,6 @@ export class PatientService {
   }
 
   // Async helpers for forms
-  async isPhoneTaken(phone: string, excludePatientId?: string): Promise<boolean> {
-    try {
-      const response = await this.checkPhoneAvailability(phone, excludePatientId).toPromise();
-      return !response?.available;
-    } catch (error) {
-      console.error('Error checking phone availability:', error);
-      return true;
-    }
-  }
-
   async isCnicTaken(cnic: string, excludePatientId?: string): Promise<boolean> {
     try {
       const response = await this.checkCnicAvailability(cnic, excludePatientId).toPromise();
