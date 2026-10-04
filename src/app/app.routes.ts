@@ -39,9 +39,7 @@ export const routes: Routes = [
       { path: 'patient-form', component: PatientForm, data: { roles: ['HOSPITAL_ADMIN'] } },
       { path: 'patient-form/:id', component: PatientForm, data: { roles: ['HOSPITAL_ADMIN'] } },
       { path: 'patient-detail', component: PatientDetailComponent, canActivate: [AuthGuard], data: { roles: ['HOSPITAL_ADMIN'] } },
-      // Prescription list for HOSPITAL_ADMIN under admin
-      { path: 'prescriptions-list', component: PrescriptionList, data: { roles: ['HOSPITAL_ADMIN'] } },
-    ],
+      ],
   },
 
   // Doctor Routes (DOCTOR only)

@@ -33,18 +33,17 @@ export class Navbar implements OnInit, OnDestroy {
     { label: 'Hospitals', icon: 'fa-hospital', route: '/admin/hospitalsList', roles: ['SUPER_ADMIN'] },
     { label: 'Register Hospital', icon: 'fa-file-circle-plus', route: '/admin/register', roles: ['SUPER_ADMIN'] },
     { label: 'Doctors', icon: 'fa-user-doctor', route: '/admin/doctors-list', roles: ['HOSPITAL_ADMIN'] },
-    { label: 'Add Doctor', icon: 'fa-user-plus', route: '/admin/doctors', roles: ['HOSPITAL_ADMIN'] },
+    // { label: 'Add Doctor', icon: 'fa-user-plus', route: '/admin/doctors', roles: ['HOSPITAL_ADMIN'] },
     { label: 'Doctor Slots', icon: 'fa-clock', route: '/admin/doctor-slots', roles: ['HOSPITAL_ADMIN'] },
     { label: 'My Slots', icon: 'fa-clock', route: '/doctor/slots', roles: ['DOCTOR'] },
     { label: 'Appointments', icon: 'fa-calendar-check', route: '/appointment', roles: ['DOCTOR', 'HOSPITAL_ADMIN'] },
     { label: 'Patients', icon: 'fa-users', route: '/admin/patients-list', roles: ['HOSPITAL_ADMIN'] },
-    { label: 'Add Patient', icon: 'fa-user-plus', route: '/admin/patient-form', roles: ['HOSPITAL_ADMIN'] },
+    // { label: 'Add Patient', icon: 'fa-user-plus', route: '/admin/patient-form', roles: ['HOSPITAL_ADMIN'] },
 
     // Prescription items
     { label: 'Add Prescription', icon: 'fa-file-prescription', route: '/doctor/prescription-form', roles: ['DOCTOR'] },
     { label: 'Prescriptions', icon: 'fa-file-medical', route: '/doctor/prescriptions-list', roles: ['DOCTOR'] },
-    { label: 'Prescriptions', icon: 'fa-file-medical', route: '/admin/prescriptions-list', roles: ['HOSPITAL_ADMIN'] },
-  ];
+    ];
 
   constructor(
     private authService: AuthService, 
